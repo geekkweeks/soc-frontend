@@ -10,13 +10,27 @@ import ArchiveIcon from "@mui/icons-material/Archive";
 import IconButton from "@mui/material/IconButton";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { API_URL } from "@/config/index";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 
 export default function ClientsPage({ clients }) {
 
-  const deleteClient = (e) => {
-    console.log('delete client');
+  async function deleteClient(clientId) {
+    console.log('delete client', clientId);
+    if(confirm('Are you sure?')){
+      const res = await fetch(`${API_URL.DeleteClient}/${clientId}`,{
+        method: "DELETE"
+      });
+  
+      if(!res.ok){
+        toast.error("Something went wrong");
+      }else{
+        const client = await res.json();
+        toast.success("Data has been removed");
+      }
+    }
   }
 
   const columns = [
@@ -64,7 +78,7 @@ export default function ClientsPage({ clients }) {
           </Link>
         </IconButton>,
         <IconButton aria-label="delete" size="small">
-          <a href="#" onClick={deleteClient}>
+          <a href="#" onClick={() => deleteClient(row.id)}>
             <DeleteIcon fontSize="inherit" />
           </a>
         </IconButton>,
@@ -98,6 +112,7 @@ export default function ClientsPage({ clients }) {
         <Link href={`/clients/add`}>Add</Link>
       </Button>
       <DataTable columns={columns} data={data} pagination />
+      <ToastContainer />
     </Layout>
   );
 }

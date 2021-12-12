@@ -61,7 +61,6 @@ export default function ClientAddPage() {
       toast.error("Something went wrong");
     }else{
       const client = await res.json();
-      console.log(client);
       toast.success("Data has been inserted");
       router.push(`/clients/${client.data.Id}`);
     }
