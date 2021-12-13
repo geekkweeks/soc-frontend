@@ -1,4 +1,4 @@
-import React, { useState,useEffect  } from "react";
+import React, { useState  } from "react";
 import Layout from "@/components/layout/layout";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -9,7 +9,6 @@ import { API_URL } from "@/config/index";
 import { Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import Link from "next/link";
-import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -38,9 +37,12 @@ export default function ClientAddPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(values);
+    const fieldsRequired = {...values};   
+    delete fieldsRequired.isPublished;   //ispublished is not mandatory  
 
-    const hasEmptyField = Object.values(values).some(
+    console.log('fieldRequired', fieldsRequired);
+
+    const hasEmptyField = Object.values(fieldsRequired).some(
       (element) => element === ""
     );
 
@@ -117,6 +119,9 @@ export default function ClientAddPage() {
               label="Description"
               id="description"
               name="description"
+              multiline
+              rows={2}
+              maxRows={Infinity}
               value={values.description}
               variant="standard"
               onChange={handleInputChange}

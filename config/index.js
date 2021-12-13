@@ -5,4 +5,5 @@ export const API_URL = {
     GetClients: Base_API_URL + "/client",
     AddClient: Base_API_URL + "/client/save",
     DeleteClient: Base_API_URL + "/client/delete",
+    UpdateClient: Base_API_URL + "/client/update",
 }
