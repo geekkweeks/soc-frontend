@@ -32,7 +32,7 @@ export default function ClientDetailPage() {
             <TextField
               label="Name"
               id="standard-size-normal"
-              defaultValue={client.Name}
+              defaultValue={client.name}
               variant="standard"
               InputProps={{
                 readOnly: true,
@@ -46,7 +46,7 @@ export default function ClientDetailPage() {
             <TextField
               label="Short Name"
               id="standard-size-normal"
-              defaultValue={client.ShortName}
+              defaultValue={client.short_name}
               variant="standard"
               InputProps={{
                 readOnly: true,
@@ -60,7 +60,7 @@ export default function ClientDetailPage() {
             <TextField
               label="Website"
               id="standard-size-normal"
-              defaultValue={client.Website}
+              defaultValue={client.website}
               variant="standard"
               InputProps={{
                 readOnly: true,
@@ -74,7 +74,7 @@ export default function ClientDetailPage() {
             <TextField
               label="PageTitle"
               id="standard-size-normal"
-              defaultValue={client.Website}
+              defaultValue={client.pagetitle}
               variant="standard"
               InputProps={{
                 readOnly: true,
@@ -88,7 +88,7 @@ export default function ClientDetailPage() {
             <TextField
               label="Description"
               id="standard-size-normal"
-              defaultValue={client.Description}
+              defaultValue={client.description}
               variant="standard"
               InputProps={{
                 readOnly: true,
@@ -102,7 +102,7 @@ export default function ClientDetailPage() {
             <TextField
               label="Logo Url"
               id="standard-size-normal"
-              defaultValue={client.LogoUrl}
+              defaultValue={client.logo_url}
               variant="standard"
               InputProps={{
                 readOnly: true,
@@ -115,9 +115,9 @@ export default function ClientDetailPage() {
           <div>
             <FormControlLabel
               control={
-                <Checkbox defaultChecked={client.IsPublished} disabled />
+                <Checkbox defaultChecked={client.is_active} disabled />
               }
-              label="Label"
+              label="Is Active"
             />
           </div>
         )}

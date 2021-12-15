@@ -63,7 +63,7 @@ export default function ClientsPage() {
 
   const handleDeleteClient = useCallback(
     (row) => async () => {
-      const resDelete = await axios.delete(`${API_URL.DeleteClient}/${row.Id}`);
+      const resDelete = await axios.delete(`${API_URL.DeleteClient}/${row.id}`);
       const response = await axios.get(
         `${API_URL.GetClients}/${currentPage}/${perPage}`
       );
@@ -78,44 +78,44 @@ export default function ClientsPage() {
     () => [
       {
         name: "ID",
-        selector: "Id",
+        selector: "id",
         sortable: true,
         omit: true,
       },
       {
         name: "Name",
-        selector: "Name",
+        selector: "name",
         sortable: true,
       },
       {
         name: "Short Name",
-        selector: "ShortName",
+        selector: "short_name",
         sortable: true,
       },
       {
         name: "Website",
-        selector: "Website",
+        selector: "website",
         sortable: true,
       },
       {
         name: "Page Title",
-        selector: "PageTitle",
+        selector: "pagetitle",
         sortable: true,
       },
       {
         name: "Description",
-        selector: "Description",
+        selector: "description",
         sortable: true,
       },
       {
         cell: (row) => [
           <IconButton aria-label="add" size="small">
-            <Link href={`/clients/${row.Id}`}>
+            <Link href={`/clients/${row.id}`}>
               <ExpandMoreIcon fontSize="inherit" />
             </Link>
           </IconButton>,
           <IconButton aria-label="edit" size="small">
-            <Link href={`/clients/edit/${row.Id}`}>
+            <Link href={`/clients/edit/${row.id}`}>
               <EditIcon fontSize="inherit" />
             </Link>
           </IconButton>,
@@ -146,6 +146,10 @@ export default function ClientsPage() {
     setPerPage(newPerPage);
   };
 
+  const currentSelectedRows= (rows) => {
+    console.log('rows',rows);
+  }
+
   return (
     <Layout title="Clients">
       <h1>Clients</h1>
@@ -165,7 +169,7 @@ export default function ClientsPage() {
         onChangeRowsPerPage={handlePerRowsChange}
         onChangePage={handlePageChange}
         selectableRows
-        onSelectedRowsChange={({ selectedRows }) => console.log(selectedRows)}
+        onSelectedRowsChange={({ selectedRows }) => currentSelectedRows(selectedRows)}
       />
       <ToastContainer />
     </Layout>

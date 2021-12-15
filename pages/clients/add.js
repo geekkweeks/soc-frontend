@@ -15,12 +15,12 @@ import "react-toastify/dist/ReactToastify.css";
 export default function ClientAddPage() {
   const [values, setValues] = useState({
     name: "",
-    shortName: "",
+    short_name: "",
     website: "",
-    pageTitle: "",
+    pagetitle: "",
     description: "",
-    logoUrl: "",
-    isPublished: "",
+    logo_url: "",
+    is_active: "",
   });  
 
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function ClientAddPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const fieldsRequired = {...values};   
-    delete fieldsRequired.isPublished;   //ispublished is not mandatory  
+    delete fieldsRequired.is_active;   //ispublished is not mandatory  
 
     console.log('fieldRequired', fieldsRequired);
 
@@ -64,7 +64,7 @@ export default function ClientAddPage() {
     }else{
       const client = await res.json();
       toast.success("Data has been inserted");
-      router.push(`/clients/${client.data.Id}`);
+      router.push(`/clients/${client.data.id}`);
     }
 
   };
@@ -87,9 +87,9 @@ export default function ClientAddPage() {
           <div>
             <TextField
               label="Short Name"
-              id="shortName"
-              name="shortName"
-              value={values.shortName}
+              id="short_name"
+              name="short_name"
+              value={values.short_name}
               variant="standard"
               onChange={handleInputChange}
             />
@@ -107,9 +107,9 @@ export default function ClientAddPage() {
           <div>
             <TextField
               label="PageTitle"
-              id="pageTitle"
-              name="pageTitle"
-              value={values.pageTitle}
+              id="pagetitle"
+              name="pagetitle"
+              value={values.pagetitle}
               variant="standard"
               onChange={handleInputChange}
             />
@@ -130,24 +130,24 @@ export default function ClientAddPage() {
           <div>
             <TextField
               label="Logo Url"
-              id="logoUrl"
-              name="logoUrl"
-              value={values.logoUrl}
+              id="logo_url"
+              name="logo_url"
+              value={values.logo_url}
               variant="standard"
               onChange={handleInputChange}
             />
           </div>
           <div>
             <FormControlLabel
-              id="isPublished"
-              name="isPublished"
+              id="is_active"
+              name="is_active"
               control={
                 <Checkbox
                   defaultChecked={false}
                   onChange={handleCheckBoxChange}
                 />
               }
-              label="Label"
+              label="Is Active"
             />
           </div>
           <div>

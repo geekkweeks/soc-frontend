@@ -81,9 +81,9 @@ export default function ClientEditPage() {
             <div>
               <TextField
                 label="Name"
-                id="Name"
-                name="Name"
-                value={client.Name}
+                id="name"
+                name="name"
+                value={client.name}
                 variant="standard"
                 onChange={handleInputChange}
               />
@@ -94,9 +94,9 @@ export default function ClientEditPage() {
             <div>
               <TextField
                 label="Short Name"
-                id="ShortName"
-                name="ShortName"
-                value={client.ShortName}
+                id="short_name"
+                name="short_name"
+                value={client.short_name}
                 variant="standard"
                 onChange={handleInputChange}
               />
@@ -107,9 +107,9 @@ export default function ClientEditPage() {
             <div>
               <TextField
                 label="Website"
-                id="Website"
-                name="Website"
-                value={client.Website}
+                id="website"
+                name="website"
+                value={client.website}
                 variant="standard"
                 onChange={handleInputChange}
               />
@@ -120,9 +120,9 @@ export default function ClientEditPage() {
             <div>
               <TextField
                 label="Page Title"
-                id="PageTitle"
-                name="PageTitle"
-                value={client.PageTitle}
+                id="pagetitle"
+                name="pagetitle"
+                value={client.pagetitle}
                 variant="standard"
                 onChange={handleInputChange}
               />
@@ -133,9 +133,9 @@ export default function ClientEditPage() {
             <div>
               <TextField
                 label="Description"
-                id="Description"
-                name="Description"
-                value={client.Description}
+                id="description"
+                name="description"
+                value={client.description}
                 variant="standard"
                 onChange={handleInputChange}
               />
@@ -146,9 +146,9 @@ export default function ClientEditPage() {
             <div>
               <TextField
                 label="Logo Url"
-                id="LogoUrl"
-                name="LogoUrl"
-                value={client.LogoUrl}
+                id="logo_url"
+                name="logo_url"
+                value={client.logo_url}
                 variant="standard"
                 onChange={handleInputChange}
               />
@@ -158,15 +158,15 @@ export default function ClientEditPage() {
           {client && (
             <div>
               <FormControlLabel
-                id="IsPublished"
-                name="IsPublished"
+                id="is_active"
+                name="is_active"
                 control={
                   <Checkbox
-                    defaultChecked={client.IsPublished}
+                    defaultChecked={client.is_active}
                     onChange={handleCheckBoxChange}
                   />
                 }
-                label="Label"
+                label="Is Active"
               />
             </div>
           )}
