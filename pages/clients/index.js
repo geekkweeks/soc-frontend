@@ -12,15 +12,24 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
 import { API_URL } from "@/config/index";
 import { ToastContainer, toast } from "react-toastify";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
 import "react-toastify/dist/ReactToastify.css";
-
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from "@mui/icons-material/Search";
+import Chip from '@mui/material/Chip';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 
 const removeItem = (array, item) => {
-    const newArray = array.slice();
-    newArray.splice(newArray.findIndex(a => a === item), 1);
-  
-    return newArray;
-  };
+  const newArray = array.slice();
+  newArray.splice(
+    newArray.findIndex((a) => a === item),
+    1
+  );
+
+  return newArray;
+};
 
 export default function ClientsPage() {
   const [data, setData] = useState([]);
@@ -28,6 +37,11 @@ export default function ClientsPage() {
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [values, setValues] = useState({
+    search: ""
+  });  
+
 
   const fetchClients = async (page, size = perPage) => {
     console.log("called");
@@ -72,7 +86,7 @@ export default function ClientsPage() {
       setTotalRows(totalRows - 1);
     },
     [currentPage, perPage, totalRows]
-  );
+  );  
 
   const columns = useMemo(
     () => [
@@ -106,6 +120,11 @@ export default function ClientsPage() {
         name: "Description",
         selector: "description",
         sortable: true,
+      },
+      {
+        name: "Active",
+        selector: "is_active",
+        cell: (row) => row.is_active ? <IconButton><CheckIcon /></IconButton> :  <IconButton><CloseIcon /></IconButton>
       },
       {
         cell: (row) => [
@@ -145,9 +164,19 @@ export default function ClientsPage() {
     fetchClients(page, newPerPage);
     setPerPage(newPerPage);
   };
+  
 
-  const currentSelectedRows= (rows) => {
-    console.log('rows',rows);
+  const currentSelectedRows = (rows) => {
+    console.log("rows", rows);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setValues({ ...values, [name]: value });
+  };
+  
+  const handleSearchClient = () => {
+    console.log('value', values.search);
   }
 
   return (
@@ -157,6 +186,27 @@ export default function ClientsPage() {
       <Button variant="outlined" startIcon={<AddIcon />}>
         <Link href={`/clients/add`}>Add</Link>
       </Button>
+      <Box sx={{ mt: 3, display: "flex", flexWrap: "wrap" }}>
+        <TextField
+          fullWidth
+          label="search"
+          id="search"
+          name="search"
+          value={values.search}
+          onChange={handleInputChange}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment>
+                <IconButton>
+                  <a href="#" onClick={() => handleSearchClient()}>
+                    <SearchIcon />
+                  </a>
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
       <DataTable
         title="Clients"
         columns={columns}
@@ -169,7 +219,9 @@ export default function ClientsPage() {
         onChangeRowsPerPage={handlePerRowsChange}
         onChangePage={handlePageChange}
         selectableRows
-        onSelectedRowsChange={({ selectedRows }) => currentSelectedRows(selectedRows)}
+        onSelectedRowsChange={({ selectedRows }) =>
+          currentSelectedRows(selectedRows)
+        }
       />
       <ToastContainer />
     </Layout>
