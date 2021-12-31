@@ -6,4 +6,7 @@ export const API_URL = {
     AddClient: Base_API_URL + "/client/save",
     DeleteClient: Base_API_URL + "/client/delete",
     UpdateClient: Base_API_URL + "/client/update",
+    SearchClient: Base_API_URL + "/client/search",
+    GetFeeds: Base_API_URL + "/feed",
+    SearchFeed: Base_API_URL + "/feed/search",
 }

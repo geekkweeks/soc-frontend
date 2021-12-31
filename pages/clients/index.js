@@ -17,9 +17,9 @@ import TextField from "@mui/material/TextField";
 import "react-toastify/dist/ReactToastify.css";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import Chip from '@mui/material/Chip';
-import CloseIcon from '@mui/icons-material/Close';
-import CheckIcon from '@mui/icons-material/Check';
+import Chip from "@mui/material/Chip";
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 
 const removeItem = (array, item) => {
   const newArray = array.slice();
@@ -39,15 +39,35 @@ export default function ClientsPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [values, setValues] = useState({
-    search: ""
-  });  
-
+    search: "",
+  });
 
   const fetchClients = async (page, size = perPage) => {
-    console.log("called");
     setLoading(true);
 
     const response = await axios.get(`${API_URL.GetClients}/${page}/${size}`);
+    console.log(response);
+
+    setData(response.data.data);
+    setTotalRows(response.data.totalRows);
+    setLoading(false);
+  };
+
+  const handleSearchClient = async () => {
+    console.log("value", values.search);
+    setLoading(true);
+    const searchReq = {
+      search: value.search,
+      pageNo: 1,
+      pageSize: 20,
+    };
+    const response = await fetch(`${API_URL.SearchClient}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    });
     console.log(response);
 
     setData(response.data.data);
@@ -86,7 +106,7 @@ export default function ClientsPage() {
       setTotalRows(totalRows - 1);
     },
     [currentPage, perPage, totalRows]
-  );  
+  );
 
   const columns = useMemo(
     () => [
@@ -124,7 +144,16 @@ export default function ClientsPage() {
       {
         name: "Active",
         selector: "is_active",
-        cell: (row) => row.is_active ? <IconButton><CheckIcon /></IconButton> :  <IconButton><CloseIcon /></IconButton>
+        cell: (row) =>
+          row.is_active ? (
+            <IconButton>
+              <CheckIcon />
+            </IconButton>
+          ) : (
+            <IconButton>
+              <CloseIcon />
+            </IconButton>
+          ),
       },
       {
         cell: (row) => [
@@ -164,7 +193,6 @@ export default function ClientsPage() {
     fetchClients(page, newPerPage);
     setPerPage(newPerPage);
   };
-  
 
   const currentSelectedRows = (rows) => {
     console.log("rows", rows);
@@ -174,10 +202,6 @@ export default function ClientsPage() {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
   };
-  
-  const handleSearchClient = () => {
-    console.log('value', values.search);
-  }
 
   return (
     <Layout title="Clients">

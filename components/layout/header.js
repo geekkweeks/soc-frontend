@@ -50,6 +50,9 @@ export default function header() {
               <Typography sx={{ minWidth: 100 }}>
                 <Link href="/user">User</Link>
               </Typography>
+              <Typography sx={{ minWidth: 100 }}>
+                <Link href="/feeds">Feeds</Link>
+              </Typography>
               <Tooltip title="Account settings">
                 <IconButton onClick={handleClick} size="small" sx={{ ml: 2 }}>
                   <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>

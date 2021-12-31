@@ -12,9 +12,6 @@ export default function ClientDetailPage() {
   const [client, setData] = useState(null);
 
   const fetchClientById = async (clientId) => {
-    axios
-      .get(`${API_URL.GetClients}/${clientId}`)
-      .then((response) => response.data);
     const response = await axios.get(`${API_URL.GetClients}/${clientId}`);
     setData(response.data.data);
   };
