@@ -21,17 +21,7 @@ import Chip from "@mui/material/Chip";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 
-const removeItem = (array, item) => {
-  const newArray = array.slice();
-  newArray.splice(
-    newArray.findIndex((a) => a === item),
-    1
-  );
-
-  return newArray;
-};
-
-export default function ClientsPage() {
+export default function MediaPage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -42,48 +32,45 @@ export default function ClientsPage() {
     search: "",
   });
 
-  const fetchClients = async (page, size = perPage) => {
+  const fetchMedias = async (page, size = perPage) => {
     setLoading(true);
 
-    const response = await axios.get(`${API_URL.GetClients}/${page}/${size}`);
-    console.log(response);
-
-    setData(response.data.data);
-    setTotalRows(response.data.totalRows);
-    setLoading(false);
-  };
-
-  const handleSearchClient = async () => {
-    console.log("value", values.search);
-    setLoading(true);
-    const searchReq = {
-      search: value.search,
-      pageNo: 1,
-      pageSize: 20,
+    const params = {
+      search: values.search,
+      pageNo: page,
+      pageSize: size,
     };
-    const response = await fetch(`${API_URL.SearchClient}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-    console.log(response);
 
-    setData(response.data.data);
-    setTotalRows(response.data.totalRows);
-    setLoading(false);
+    axios({
+      method: "post",
+      url: `${API_URL.SearchMedia}`,
+      data: params,
+    }).then(
+      (response) => {
+        console.log(response);
+        setData(response.data.data);
+        setTotalRows(response.data.totalRows);
+        setLoading(false);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   };
+
+  const handleSearchMedia = () => {
+    fetchMedias(1);
+  }
 
   useEffect(() => {
-    fetchClients(1);
+    fetchMedias(1);
   }, []);
 
-  const handleDeleteClient = useCallback(
+  const handleDeleteMedia = useCallback(
     (row) => async () => {
-      const resDelete = await axios.delete(`${API_URL.DeleteClient}/${row.id}`);
+      const resDelete = await axios.delete(`${API_URL.DeleteMedia}/${row.id}`);
       const response = await axios.get(
-        `${API_URL.GetClients}/${currentPage}/${perPage}`
+        `${API_URL.GetMedias}/${currentPage}/${perPage}`
       );
 
       setData(removeItem(response.data.data, row));
@@ -106,26 +93,6 @@ export default function ClientsPage() {
         sortable: true,
       },
       {
-        name: "Short Name",
-        selector: "short_name",
-        sortable: true,
-      },
-      {
-        name: "Website",
-        selector: "website",
-        sortable: true,
-      },
-      {
-        name: "Page Title",
-        selector: "pagetitle",
-        sortable: true,
-      },
-      {
-        name: "Description",
-        selector: "description",
-        sortable: true,
-      },
-      {
         name: "Active",
         selector: "is_active",
         cell: (row) =>
@@ -141,18 +108,18 @@ export default function ClientsPage() {
       },
       {
         cell: (row) => [
-          <IconButton aria-label="add" size="small">
-            <Link href={`/clients/${row.id}`}>
+          <IconButton aria-label="" size="small">
+            <Link href={`/medias/${row.id}`}>
               <ExpandMoreIcon fontSize="inherit" />
             </Link>
           </IconButton>,
-          <IconButton aria-label="edit" size="small">
-            <Link href={`/clients/edit/${row.id}`}>
+          <IconButton aria-label="" size="small">
+            <Link href={`/medias/edit/${row.id}`}>
               <EditIcon fontSize="inherit" />
             </Link>
           </IconButton>,
           <IconButton aria-label="delete" size="small">
-            <a href="#" onClick={handleDeleteClient(row)}>
+            <a href="#" onClick={handleDeleteMedia(row)}>
               <DeleteIcon fontSize="inherit" />
             </a>
           </IconButton>,
@@ -165,16 +132,16 @@ export default function ClientsPage() {
         button: true,
       },
     ],
-    [handleDeleteClient]
+    [handleDeleteMedia]
   );
 
   const handlePageChange = (page) => {
-    fetchClients(page);
+    fetchMedias(page);
     setCurrentPage(page);
   };
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    fetchClients(page, newPerPage);
+    fetchMedias(page, newPerPage);
     setPerPage(newPerPage);
   };
 
@@ -188,11 +155,11 @@ export default function ClientsPage() {
   };
 
   return (
-    <Layout title="Clients">
-      <h1>Clients</h1>
+    <Layout title="">
+      <h1>Media</h1>
       <br />
       <Button variant="outlined" startIcon={<AddIcon />}>
-        <Link href={`/clients/add`}>Add</Link>
+        <Link href={`/medias/add`}>Add</Link>
       </Button>
       <Box sx={{ mt: 3, display: "flex", flexWrap: "wrap" }}>
         <TextField
@@ -206,7 +173,7 @@ export default function ClientsPage() {
             endAdornment: (
               <InputAdornment>
                 <IconButton>
-                  <a href="#" onClick={() => handleSearchClient()}>
+                  <a href="#" onClick={() => handleSearchMedia()}>
                     <SearchIcon />
                   </a>
                 </IconButton>
@@ -216,7 +183,7 @@ export default function ClientsPage() {
         />
       </Box>
       <DataTable
-        title="Clients"
+        title=""
         columns={columns}
         data={data}
         progressPending={loading}

@@ -2,11 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Layout from "@/components/layout/layout";
 import DataTable from "react-data-table-component";
-import Button from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ArchiveIcon from "@mui/icons-material/Archive";
 import IconButton from "@mui/material/IconButton";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
@@ -17,9 +12,6 @@ import TextField from "@mui/material/TextField";
 import "react-toastify/dist/ReactToastify.css";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import Chip from "@mui/material/Chip";
-import CloseIcon from "@mui/icons-material/Close";
-import CheckIcon from "@mui/icons-material/Check";
 
 export default function FeedsPage() {
   const [data, setData] = useState([]);
@@ -45,21 +37,21 @@ export default function FeedsPage() {
       pageSize: size,
     };
 
-    const response = await axios
-      .get(`${API_URL.SearchFeed}`, {
-        params,
-      })
-      .then(
-        (response) => {
-          console.log(response);
-          setData(response.data.data);
-          setTotalRows(response.data.totalRows);
-          setLoading(false);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
+    axios({
+      method: 'post',
+      url: `${API_URL.SearchFeed}`,
+      data: params,
+    }).then(
+      (response) => {
+        console.log(response);
+        setData(response.data.data);
+        setTotalRows(response.data.totalRows);
+        setLoading(false);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
 
     
   };
@@ -137,7 +129,7 @@ export default function FeedsPage() {
     ]
   );
 
-  const handleSearchClient = () => {
+  const handleSearchFeed = () => {
     fetchFeeds(1);
   }
 
@@ -157,7 +149,7 @@ export default function FeedsPage() {
             endAdornment: (
               <InputAdornment>
                 <IconButton>
-                  <a href="#" onClick={() => handleSearchClient()}>
+                  <a href="#" onClick={() => handleSearchFeed()}>
                     <SearchIcon />
                   </a>
                 </IconButton>
@@ -167,7 +159,7 @@ export default function FeedsPage() {
         />
       </Box>
       <DataTable
-        title="Feeds"
+        title=""
         columns={columns}
         data={data}
         progressPending={loading}
