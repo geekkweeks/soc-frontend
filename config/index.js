@@ -16,6 +16,7 @@ export const NEXT_URL =
 export const API_URL = {
   BaseUrl: Base_API_URL,
   GetClients: Base_API_URL + "/client",
+  GetAllClient: Base_API_URL + "/client/getall",
   AddClient: Base_API_URL + "/client/save",
   DeleteClient: Base_API_URL + "/client/delete",
   UpdateClient: Base_API_URL + "/client/update",
@@ -29,4 +30,7 @@ export const API_URL = {
   GetKeywords: Base_API_URL + "/keyword",
   Login: Base_API_URL + "/login",
   Me: Base_API_URL + "/me",
+  AddFeed: Base_API_URL + "/feed/save",
+  GetConversationTypes: Base_API_URL + "/conversationtype",
+  TalksAbout: Base_API_URL + "/talkabout",
 };

@@ -39,11 +39,9 @@ export const AuthProvider = ({ children }) => {
     console.log("res", data);
 
     if (res.ok) {
-      console.log("ok ini mas", data);
       setUser(data.user);
       router.replace("/");
     } else {
-      console.log("gak ok mas");
       setError(data.message);
       setError(null);
     }

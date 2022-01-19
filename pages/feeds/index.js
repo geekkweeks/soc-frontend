@@ -12,8 +12,21 @@ import TextField from "@mui/material/TextField";
 import "react-toastify/dist/ReactToastify.css";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
+import Button from "@mui/material/Button";
+import AddIcon from "@mui/icons-material/Add";
+import {parseCookies} from '@/helpers/index'
 
-export default function FeedsPage() {
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req);
+  
+  return {
+    props: {
+      token,
+    }, // will be passed to the page component as props
+  };
+}
+
+export default function FeedsPage({token}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -39,6 +52,9 @@ export default function FeedsPage() {
 
     axios({
       method: 'post',
+      headers:{
+        Authorization: `Bearer ${token}`
+      },
       url: `${API_URL.SearchFeed}`,
       data: params,
     }).then(
@@ -137,6 +153,9 @@ export default function FeedsPage() {
     <Layout title="clients">
       <h1>Feeds</h1>
       <br />
+      <Button variant="outlined" startIcon={<AddIcon />}>
+        <Link href={`/feeds/add`}>Add</Link>
+      </Button>
       <Box sx={{ mt: 3, display: "flex", flexWrap: "wrap" }}>
         <TextField
           fullWidth

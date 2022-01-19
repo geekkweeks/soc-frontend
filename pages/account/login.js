@@ -80,21 +80,9 @@ export default function LoginPage() {
       password: data.get("password"),
     };
 
-    // const req = await fetch(`${API_URL.Login}`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(field),
-    // });
-    // const res = await req.json();
-    // if (res.token) {
-    //   setProgress(false);
-    //   // nookies.set(null, "token", res.token);
-    //   Router.replace("/");
-    // }
-
     login(field)
+
+    toast.error("Wrong username or password");    
 
     setProgress(false);
   }

@@ -22,16 +22,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import cookie from "cookie";
 import { parseCookies } from "@/helpers/index";
+
 export async function getServerSideProps({ req }) {
   const { token } = parseCookies(req);
-  // if (!token) {
-  //   return {
-  //     redirect: {
-  //       destination: "account/login",
-  //     },
-  //   };
-  // }
-
+  
   return {
     props: {
       token,
