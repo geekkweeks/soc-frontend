@@ -20,6 +20,24 @@ import SearchIcon from "@mui/icons-material/Search";
 import Chip from "@mui/material/Chip";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import cookie from "cookie";
+import { parseCookies } from "@/helpers/index";
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req);
+  // if (!token) {
+  //   return {
+  //     redirect: {
+  //       destination: "account/login",
+  //     },
+  //   };
+  // }
+
+  return {
+    props: {
+      token,
+    }, // will be passed to the page component as props
+  };
+}
 
 const removeItem = (array, item) => {
   const newArray = array.slice();
@@ -31,7 +49,7 @@ const removeItem = (array, item) => {
   return newArray;
 };
 
-export default function ClientsPage() {
+export default function ClientsPage({ token }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -45,7 +63,12 @@ export default function ClientsPage() {
   const fetchClients = async (page, size = perPage) => {
     setLoading(true);
 
-    const response = await axios.get(`${API_URL.GetClients}/${page}/${size}`);
+    const response = await axios.get(`${API_URL.GetClients}/${page}/${size}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     console.log(response);
 
     setData(response.data.data);
@@ -56,23 +79,32 @@ export default function ClientsPage() {
   const handleSearchClient = async () => {
     console.log("value", values.search);
     setLoading(true);
-    const searchReq = {
-      search: value.search,
+    const payLoad = {
+      search: values.search,
       pageNo: 1,
       pageSize: 20,
     };
-    const response = await fetch(`${API_URL.SearchClient}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-    console.log(response);
+    
 
-    setData(response.data.data);
-    setTotalRows(response.data.totalRows);
-    setLoading(false);
+    axios({
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      url: `${API_URL.SearchClient}`,
+      data: payLoad,
+    }).then(
+      (response) => {
+        console.log(response);
+        setData(response.data.data);
+        setTotalRows(response.data.totalRows);
+        setLoading(false);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+
   };
 
   useEffect(() => {
@@ -81,9 +113,23 @@ export default function ClientsPage() {
 
   const handleDeleteClient = useCallback(
     (row) => async () => {
-      const resDelete = await axios.delete(`${API_URL.DeleteClient}/${row.id}`);
+      const resDelete = await axios.delete(
+        `${API_URL.DeleteClient}/${row.id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const response = await axios.get(
-        `${API_URL.GetClients}/${currentPage}/${perPage}`
+        `${API_URL.GetClients}/${currentPage}/${perPage}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       setData(removeItem(response.data.data, row));
@@ -103,6 +149,11 @@ export default function ClientsPage() {
       {
         name: "Name",
         selector: "name",
+        sortable: true,
+      },
+      {
+        name: "DB",
+        selector: "db_name",
         sortable: true,
       },
       {

@@ -1,6 +1,4 @@
-import { useEffect } from "react";
-import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
+import React, { useState, useContext, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -14,11 +12,12 @@ import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { API_URL } from "@/config/index";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
-
-import { userService } from "services";
+import Router from "next/router";
+import AuthContext from "@/context/AuthContext";
+// import nookies from "nookies";
 
 function Copyright(props) {
   return (
@@ -40,169 +39,129 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-export default function SignIn() {
-  const router = useRouter();
+export default function LoginPage() {
+  const { login, error } = useContext(AuthContext);
+  const [field, setField] = useState({});
+  const [progress, setProgress] = useState(false);
 
-  useEffect(() => {
-    // redirect to home if already logged in
-    if (userService.userValue) {
-      router.push("/");
-    }
-  }, []);
+  useEffect(() => {error && toast('Username or password was invalid')})
 
-  // form validation rules
-  const validationSchema = Yup.object().shape({
-    username: Yup.string().required("Username is required"),
-    password: Yup.string().required("Password is required"),
-  });
-  const formOptions = { resolver: yupResolver(validationSchema) };
-
-  // get functions to build form with useForm() hook
-  const { register, handleSubmit, setError, formState } = useForm(formOptions);
-  const { errors } = formState;
-
-  function onSubmit({ username, password }) {
-    console.log(username, password)
-    return userService
-      .login(username, password)
-      .then(() => {
-        // get return url from query parameters or default to '/'
-        const returnUrl = router.query.returnUrl || "/";
-        console.log("return url", returnUrl);
-        router.push(returnUrl);
-      })
-      .catch((error) => {
-        setError("apiError", { message: error });
-      });
+  function setValue(e) {
+    const target = e.target;
+    const name = target.name;
+    const value = target.value;
+    setField({
+      ...field,
+      [name]: value,
+    });
   }
 
-  
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+
+    if (!field) {
+      toast.error("Please fill username and password");
+      return;
+    }
+
+    if (field.username === "") {
+      toast.error("Please fill username");
+      return;
+    }
+
+    if (field.password === "") {
+      toast.error("Please fill password");
+      return;
+    }
+
+    const payload = {
+      username: data.get("username"),
+      password: data.get("password"),
+    };
+
+    // const req = await fetch(`${API_URL.Login}`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(field),
+    // });
+    // const res = await req.json();
+    // if (res.token) {
+    //   setProgress(false);
+    //   // nookies.set(null, "token", res.token);
+    //   Router.replace("/");
+    // }
+
+    login(field)
+
+    setProgress(false);
+  }
 
   return (
-    <div className="col-md-6 offset-md-3 mt-5">
-      <div className="alert alert-info">
-        Username: test
-        <br />
-        Password: test
-      </div>
-      <div className="card">
-        <h4 className="card-header">Next.js JWT Login Example</h4>
-        <div className="card-body">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-group">
-              <label>Username</label>
-              <input
-                name="username"
-                type="text"
-                {...register("username")}
-                className={`form-control ${
-                  errors.username ? "is-invalid" : ""
-                }`}
-              />
-              <div className="invalid-feedback">{errors.username?.message}</div>
-            </div>
-            <div className="form-group">
-              <label>Password</label>
-              <input
-                name="password"
-                type="password"
-                {...register("password")}
-                className={`form-control ${
-                  errors.password ? "is-invalid" : ""
-                }`}
-              />
-              <div className="invalid-feedback">{errors.password?.message}</div>
-            </div>
-            <button
-              disabled={formState.isSubmitting}
-              className="btn btn-primary"
+    <ThemeProvider theme={theme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+            <RocketLaunchIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            validator
+            sx={{ mt: 1 }}
+          >
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              onChange={setValue}
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              onChange={setValue}
+              autoComplete="current-password"
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={progress}
             >
-              {formState.isSubmitting && (
-                <span className="spinner-border spinner-border-sm mr-1"></span>
-              )}
-              Login
-            </button>
-            {errors.apiError && (
-              <div className="alert alert-danger mt-3 mb-0">
-                {errors.apiError?.message}
-              </div>
-            )}
-          </form>
-        </div>
-      </div>
-    </div>
+              Sign In
+            </Button>
+            <ToastContainer />
+          </Box>
+        </Box>
+        <Copyright sx={{ mt: 8, mb: 4 }} />
+      </Container>
+    </ThemeProvider>
   );
-
-  // return (
-  //   <ThemeProvider theme={theme}>
-  //     <Container component="main" maxWidth="xs">
-  //       <CssBaseline />
-  //       <form onSubmit={handleSubmit(onSubmit)}>
-  //         <Box
-  //           sx={{
-  //             marginTop: 8,
-  //             display: "flex",
-  //             flexDirection: "column",
-  //             alignItems: "center",
-  //           }}
-  //         >
-  //           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-  //             <RocketLaunchIcon />
-  //           </Avatar>
-  //           <Typography component="h1" variant="h5">
-  //             Sign in
-  //           </Typography>
-  //           <Box
-  //             component="form"
-  //             onSubmit={handleSubmit}
-  //             noValidate
-  //             sx={{ mt: 1 }}
-  //           >
-  //             <TextField
-  //               margin="normal"
-  //               required
-  //               fullWidth
-  //               id="username"
-  //               label="username"
-  //               name="username"
-  //               autoComplete="username"
-  //               autoFocus
-  //             />
-  //             <TextField
-  //               margin="normal"
-  //               required
-  //               fullWidth
-  //               name="password"
-  //               label="Password"
-  //               type="password"
-  //               id="password"
-  //               autoComplete="current-password"
-  //             />
-  //             <FormControlLabel
-  //               control={<Checkbox value="remember" color="primary" />}
-  //               label="Remember me"
-  //             />
-  //             <Button
-  //               type="submit"
-  //               fullWidth
-  //               variant="contained"
-  //               sx={{ mt: 3, mb: 2 }}
-  //             >
-  //               Sign In
-  //             </Button>
-  //             <Grid container>
-  //               <Grid item xs>
-  //                 <Link href="#" variant="body2">
-  //                   Forgot password?
-  //                 </Link>
-  //               </Grid>
-  //             </Grid>
-  //           </Box>
-  //         </Box>
-  //       </form>
-
-  //       <Copyright sx={{ mt: 8, mb: 4 }} />
-  //     </Container>
-  //   </ThemeProvider>
-  // );
 }

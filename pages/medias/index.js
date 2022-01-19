@@ -88,8 +88,13 @@ export default function MediaPage() {
         omit: true,
       },
       {
-        name: "Name",
-        selector: "name",
+        name: "Media",
+        selector: "media",
+        sortable: true,
+      },
+      {
+        name: "Keyword",
+        selector: "keyword",
         sortable: true,
       },
       {
