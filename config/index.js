@@ -33,4 +33,5 @@ export const API_URL = {
   AddFeed: Base_API_URL + "/feed/save",
   GetConversationTypes: Base_API_URL + "/conversationtype",
   TalksAbout: Base_API_URL + "/talkabout",
+  GetSubjectByClient: Base_API_URL + "/subject/getbyclient"
 };
