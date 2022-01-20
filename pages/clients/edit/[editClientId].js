@@ -10,9 +10,20 @@ import { Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import { parseCookies } from "@/helpers/index";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function ClientEditPage() {
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req);
+
+  return {
+    props: {
+      token,
+    }, // will be passed to the page component as props
+  };
+}
+
+export default function ClientEditPage({ token }) {
   const [client, setData] = useState(null);
 
   const router = useRouter();
@@ -21,7 +32,12 @@ export default function ClientEditPage() {
     // axios
     //   .get(`${API_URL.GetClients}/${clientId}`)
     //   .then((response) => response.data);
-    const response = await axios.get(`${API_URL.GetClients}/${clientId}`);
+    const response = await axios.get(`${API_URL.GetClients}/${clientId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     setData(response.data.data);
   };
 
@@ -32,7 +48,7 @@ export default function ClientEditPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const fieldsRequired = { ...client };    
+    const fieldsRequired = { ...client };
     delete fieldsRequired.IsPublished; //ispublished is not mandatory
 
     const hasEmptyField = Object.values(fieldsRequired).some(
@@ -49,6 +65,7 @@ export default function ClientEditPage() {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(client),
     });
@@ -66,7 +83,6 @@ export default function ClientEditPage() {
     const { name, value } = e.target;
     setData({ ...client, [name]: value });
   };
-
 
   const handleCheckBoxChange = (e) => {
     const { name, checked } = e.target;

@@ -7,12 +7,27 @@ import Checkbox from "@mui/material/Checkbox";
 import { useRouter } from "next/router";
 import { API_URL } from "@/config/index";
 import axios from "axios";
+import { parseCookies } from "@/helpers/index";
 
-export default function ClientDetailPage() {
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req);
+
+  return {
+    props: {
+      token,
+    }, // will be passed to the page component as props
+  };
+}
+
+export default function ClientDetailPage({ token }) {
   const [client, setData] = useState(null);
 
   const fetchClientById = async (clientId) => {
-    const response = await axios.get(`${API_URL.GetClients}/${clientId}`);
+    const response = await axios.get(`${API_URL.GetClients}/${clientId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     setData(response.data.data);
   };
 
@@ -111,9 +126,7 @@ export default function ClientDetailPage() {
         {client && (
           <div>
             <FormControlLabel
-              control={
-                <Checkbox defaultChecked={client.is_active} disabled />
-              }
+              control={<Checkbox defaultChecked={client.is_active} disabled />}
               label="Is Active"
             />
           </div>

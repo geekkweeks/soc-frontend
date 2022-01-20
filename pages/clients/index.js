@@ -20,12 +20,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import Chip from "@mui/material/Chip";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import cookie from "cookie";
 import { parseCookies } from "@/helpers/index";
 
 export async function getServerSideProps({ req }) {
   const { token } = parseCookies(req);
-  
+
   return {
     props: {
       token,
@@ -62,34 +61,9 @@ export default function ClientsPage({ token }) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-    });
-    console.log(response);
-
-    setData(response.data.data);
-    setTotalRows(response.data.totalRows);
-    setLoading(false);
-  };
-
-  const handleSearchClient = async () => {
-    console.log("value", values.search);
-    setLoading(true);
-    const payLoad = {
-      search: values.search,
-      pageNo: 1,
-      pageSize: 20,
-    };
-    
-
-    axios({
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      url: `${API_URL.SearchClient}`,
-      data: payLoad,
-    }).then(
+    }).then(      
       (response) => {
-        console.log(response);
+        console.log(response.data)
         setData(response.data.data);
         setTotalRows(response.data.totalRows);
         setLoading(false);
@@ -98,7 +72,33 @@ export default function ClientsPage({ token }) {
         console.log(error);
       }
     );
+  };
 
+  const handleSearchClient = async () => {
+    setLoading(true);
+    const payLoad = {
+      search: values.search,
+      pageNo: 1,
+      pageSize: 20,
+    };
+
+    axios({
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      url: `${API_URL.SearchClient}`,
+      data: payLoad,
+    }).then(
+      (response) => {
+        setData(response.data.data);
+        setTotalRows(response.data.totalRows);
+        setLoading(false);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   };
 
   useEffect(() => {

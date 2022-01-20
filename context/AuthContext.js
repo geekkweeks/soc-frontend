@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
 
   // Register User
   const register = async (user) => {
-    console.log(user);
   };
 
   // Login User
@@ -35,9 +34,6 @@ export const AuthProvider = ({ children }) => {
 
     const data = await res.json();
 
-    console.log(data);
-    console.log("res", data);
-
     if (res.ok) {
       setUser(data.user);
       router.replace("/");
@@ -49,7 +45,6 @@ export const AuthProvider = ({ children }) => {
 
   // Logout User
   const logout = async () => {
-    console.log("Logout");
     const res = await fetch(`${API_FE.LogoutUrl}`, {
       method: "POST",
     });
@@ -63,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   // Check if user is logged in
   // this function mut be called by useEffect
   const checkUserLoggedIn = async (user) => {
-    console.log("Check");
+    console.log("checkUserLoggedIn");
     const res = await fetch(`${API_FE.UserUrl}`);
     const data = await res.json();
     if (res.ok) {

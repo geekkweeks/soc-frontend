@@ -47,7 +47,6 @@ export default function KeywordPage() {
       data: params,
     }).then(
       (response) => {
-        console.log(response);
         setData(response.data.data);
         setTotalRows(response.data.totalRows);
         setLoading(false);

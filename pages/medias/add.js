@@ -35,8 +35,6 @@ export default function MediaAddPage() {
     const fieldsRequired = { ...values };
     delete fieldsRequired.is_active; //ispublished is not mandatory
 
-    console.log("fieldRequired", fieldsRequired);
-
     const hasEmptyField = Object.values(fieldsRequired).some(
       (element) => element === ""
     );

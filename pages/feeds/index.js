@@ -59,7 +59,6 @@ export default function FeedsPage({token}) {
       data: params,
     }).then(
       (response) => {
-        console.log(response);
         setData(response.data.data);
         setTotalRows(response.data.totalRows);
         setLoading(false);

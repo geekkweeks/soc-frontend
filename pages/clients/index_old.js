@@ -18,7 +18,6 @@ import "react-toastify/dist/ReactToastify.css";
 export default function ClientsPage({ clients }) {
 
   async function deleteClient(clientId) {
-    console.log('delete client', clientId);
     if(confirm('Are you sure?')){
       const res = await fetch(`${API_URL.DeleteClient}/${clientId}`,{
         method: "DELETE"
