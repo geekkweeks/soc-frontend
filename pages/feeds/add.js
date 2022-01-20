@@ -34,12 +34,25 @@ export async function getServerSideProps({ req }) {
 }
 
 export default function FeedAddPage({ token }) {
+  const [conversationtype, setConversationtype] = useState([]);
+  const [talkAbout, setTalkAbout] = useState([]);
+  const [client, setClient] = useState([]);
+  const [subject, setSubject] = useState([]);
+  const [media, setMedia] = useState([]);
+
   const [takenDate, setTakenDate] = useState(null);
   const [postedDate, setPostedDate] = useState(null);
-  const [conversationtype, setConversationtype] = useState(null);
-  const [talkAbout, setTalkAbout] = useState(null);
-  const [client, setClient] = useState(null);
-  const [subject, setSubject] = useState([]);
+  //options selected
+  const [clientSelected, setClientSelected] = useState(null);
+  const [subjectSelected, setSubjectSelected] = useState(null);
+  const [talkAboutSelected, setTalkAboutSelected] = useState(null);
+  const [conversationTypeSelected, setConversationTypeSelected] =
+    useState(null);
+  const [corporateSelected, setCorporateSelected] = useState(null);
+  const [educationSelected, setEducationSelected] = useState(null);
+  const [genderSelected, setGenderSelected] = useState(null);
+  const [ageSelected, setAgeSelected] = useState(null);
+  const [mediaSelected, setMediaSelected] = useState(null);
 
   const corporateList = [
     {
@@ -114,14 +127,31 @@ export default function FeedAddPage({ token }) {
   ];
 
   const [values, setValues] = useState({
-    name: "",
-    short_name: "",
-    website: "",
-    pagetitle: "",
-    description: "",
-    logo_url: "",
-    is_active: "",
-    media: "",
+    client: "",
+    client_id: "",
+    media_id: "",
+    taken_date: "",
+    posted_date: "",
+    Keyword: "",
+    title: "",
+    caption: "",
+    content: "",
+    permalink: "",
+    thumblink: "",
+    replies: "",
+    views: "",
+    favs: "",
+    likes: "",
+    comment: "",
+    subject_id: "",
+    talk_about_id: "",
+    conversation_type_id: "",
+    tags: "",
+    corporate: "",
+    education: "",
+    gender: "",
+    age: "",
+    location: "",
   });
 
   const router = useRouter();
@@ -129,30 +159,11 @@ export default function FeedAddPage({ token }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
-    console.log(values);
-  };
-
-  const handleOptionsConversationTypeChange = (event, value) => {
-    const { name } = "media";
-    setValues({ ...values, [name]: value["value"] });
-    console.log(value["value"]);
-    console.log(values);
-  };
-  const handleOptionsTalksAboutChange = (event, value) => {
-    // console.log(value["value"]);
-  };
-
-  const handleOptionsClientChange = (event, value) => {
-    //reset value
-    setSubject([]);
-    if (value != null) {
-      console.log(value["value"]);
-      fetchSubjects(value["value"]);
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(clientSelected);
   };
 
   const fetchConversationTypes = async () => {
@@ -221,6 +232,28 @@ export default function FeedAddPage({ token }) {
     }
   };
 
+  const fetchMedias = async () => {
+    //get conversationtype
+    const res = await fetch(`${API_URL.GetAllMedia}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      const customData = data.data.map((obj, idx) => {
+        return {
+          label: obj.name,
+          value: obj.id,
+        };
+      });
+      setMedia(customData);
+    }
+  };
+
   const fetchSubjects = async (clientid) => {
     //get conversationtype
     const res = await fetch(`${API_URL.GetSubjectByClient}/${clientid}`, {
@@ -247,6 +280,7 @@ export default function FeedAddPage({ token }) {
     fetchConversationTypes();
     fetchTalksAbout();
     fetchClients();
+    fetchMedias();
   }, []);
 
   return (
@@ -261,7 +295,11 @@ export default function FeedAddPage({ token }) {
                   id="disable-close-on-select"
                   size="small"
                   options={client}
-                  onChange={handleOptionsClientChange} // prints the selected value
+                  onChange={(event, value) =>
+                    value !== null
+                      ? setClientSelected(value["value"])
+                      : setClientSelected(null)
+                  } // prints the selected value
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -272,7 +310,26 @@ export default function FeedAddPage({ token }) {
                   )}
                 />
               </Grid>
-              <Grid item xs={3}></Grid>
+              <Grid item xs={3}>
+                <Autocomplete
+                  id="disable-close-on-select"
+                  size="small"
+                  options={media}
+                  onChange={(event, value) =>
+                    value !== null
+                      ? setMediaSelected(value["value"])
+                      : setMediaSelected(null)
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Media"
+                      name="media_id"
+                      variant="standard"
+                    />
+                  )}
+                />
+              </Grid>
               <Grid item xs={3}></Grid>
               <Grid item xs={3}></Grid>
               <Grid item xs={3}>
@@ -324,8 +381,7 @@ export default function FeedAddPage({ token }) {
                   name="caption"
                   fullWidth
                   multiline
-                  rows={2}
-                  maxRows={Infinity}
+                  maxRows={10}
                   value={values.caption}
                   variant="standard"
                   onChange={handleInputChange}
@@ -416,32 +472,9 @@ export default function FeedAddPage({ token }) {
                   label="Total Comments"
                   type="number"
                   InputProps={{ inputProps: { min: 0 } }}
-                  id="comments"
-                  name="comments"
-                  value={values.comments}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
-              <Grid item xs={2}></Grid>
-              <Grid item xs={3}>
-                <TextField
-                  label="Age"
-                  type="number"
-                  InputProps={{ inputProps: { min: 0 } }}
-                  id="age"
-                  name="age"
-                  value={values.age}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  label="Education"
-                  id="edu"
-                  name="edu"
-                  value={values.edu}
+                  id="comment"
+                  name="comment"
+                  value={values.comment}
                   variant="standard"
                   onChange={handleInputChange}
                 />
@@ -462,6 +495,11 @@ export default function FeedAddPage({ token }) {
                     id="disable-close-on-select"
                     size="small"
                     options={subject}
+                    onChange={(event, value) =>
+                      value !== null
+                        ? setSubjectSelected(value["value"])
+                        : setSubjectSelected(null)
+                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -476,6 +514,11 @@ export default function FeedAddPage({ token }) {
                   <Autocomplete
                     id="talkabout"
                     size="small"
+                    onChange={(event, value) =>
+                      value !== null
+                        ? setTalkAboutSelected(value["value"])
+                        : setTalkAboutSelected(null)
+                    }
                     options={talkAbout}
                     renderInput={(params) => (
                       <TextField
@@ -492,7 +535,11 @@ export default function FeedAddPage({ token }) {
                     id="disable-close-on-select"
                     size="small"
                     options={conversationtype}
-                    onChange={handleOptionsConversationTypeChange} // prints the selected value
+                    onChange={(event, value) =>
+                      value !== null
+                        ? setConversationTypeSelected(value["value"])
+                        : setConversationTypeSelected(null)
+                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -518,7 +565,11 @@ export default function FeedAddPage({ token }) {
                     id="disable-close-on-select"
                     size="small"
                     options={corporateList}
-                    onChange={handleOptionsConversationTypeChange} // prints the selected value
+                    onChange={(event, value) =>
+                      value !== null
+                        ? setCorporateSelected(value["value"])
+                        : setCorporateSelected(null)
+                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -534,7 +585,11 @@ export default function FeedAddPage({ token }) {
                     id="disable-close-on-select"
                     size="small"
                     options={educationList}
-                    onChange={handleOptionsConversationTypeChange} // prints the selected value
+                    onChange={(event, value) =>
+                      value !== null
+                        ? setEducationSelected(value["value"])
+                        : setEducationSelected(null)
+                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -550,7 +605,11 @@ export default function FeedAddPage({ token }) {
                     id="disable-close-on-select"
                     size="small"
                     options={sexList}
-                    onChange={handleOptionsConversationTypeChange} // prints the selected value
+                    onChange={(event, value) =>
+                      value !== null
+                        ? setGenderSelected(value["value"])
+                        : setGenderSelected(null)
+                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -566,7 +625,11 @@ export default function FeedAddPage({ token }) {
                     id="disable-close-on-select"
                     size="small"
                     options={ageList}
-                    onChange={handleOptionsConversationTypeChange} // prints the selected value
+                    onChange={(event, value) =>
+                      value !== null
+                        ? setAgeSelected(value["value"])
+                        : setAgeSelected(null)
+                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
