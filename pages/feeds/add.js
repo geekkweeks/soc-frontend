@@ -34,6 +34,9 @@ export async function getServerSideProps({ req }) {
 }
 
 export default function FeedAddPage({ token }) {
+
+  const [progress, setProgress] = useState(false);
+
   const [conversationtype, setConversationtype] = useState([]);
   const [talkAbout, setTalkAbout] = useState([]);
   const [client, setClient] = useState([]);
@@ -127,12 +130,11 @@ export default function FeedAddPage({ token }) {
   ];
 
   const [values, setValues] = useState({
-    client: "",
     client_id: "",
     media_id: "",
     taken_date: "",
     posted_date: "",
-    Keyword: "",
+    keyword: "",
     title: "",
     caption: "",
     content: "",
@@ -144,8 +146,8 @@ export default function FeedAddPage({ token }) {
     likes: "",
     comment: "",
     subject_id: "",
-    talk_about_id: "",
-    conversation_type_id: "",
+    talk_about: "",
+    conversation_type: "",
     tags: "",
     corporate: "",
     education: "",
@@ -159,12 +161,19 @@ export default function FeedAddPage({ token }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
-  };
+  };  
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(clientSelected);
-  };
+  const handleOptionsClientChange = (event, value) => {
+    //reset subject value
+    setSubject([]);
+    if(value != null) {
+      console.log(value.value);
+      setClientSelected(value.value);
+      fetchSubjects(value.value)
+    }else{
+      setClientSelected(null);
+    }
+  }
 
   const fetchConversationTypes = async () => {
     //get conversationtype
@@ -283,6 +292,36 @@ export default function FeedAddPage({ token }) {
     fetchMedias();
   }, []);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setProgress(true)
+    values.client_id = clientSelected;
+    values.media_id = mediaSelected;
+    values.taken_date = takenDate;
+    values.posted_date = postedDate;    
+    values.subject_id = subjectSelected;
+    values.talk_about = talkAboutSelected;
+    values.conversation_type = conversationTypeSelected;
+    values.corporate = corporateSelected;
+    values.education = educationSelected;
+    values.gender = genderSelected;
+    values.age = ageSelected;
+
+    //call API
+
+    setTimeout(
+      function(){
+        console.log('start')
+        console.log(values);
+        setProgress(false)
+      } , 
+      3000
+    );
+
+    
+    //e.reset()
+  };
+
   return (
     <Layout title="Feed-Add">
       <h1>Add New Feed</h1>
@@ -295,11 +334,12 @@ export default function FeedAddPage({ token }) {
                   id="disable-close-on-select"
                   size="small"
                   options={client}
-                  onChange={(event, value) =>
-                    value !== null
-                      ? setClientSelected(value["value"])
-                      : setClientSelected(null)
-                  } // prints the selected value
+                  // onChange={(event, value) =>
+                  //   value !== null
+                  //     ? setClientSelected(value["value"])
+                  //     : setClientSelected(null)
+                  // }
+                  onChange={handleOptionsClientChange}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -653,7 +693,11 @@ export default function FeedAddPage({ token }) {
               </AccordionDetails>
             </Accordion>
             <br />
-            <Button type="submit" variant="contained" endIcon={<SendIcon />}>
+            <Button 
+              type="submit" 
+              variant="contained" 
+              disabled={progress}
+              endIcon={<SendIcon />}>
               Save
             </Button>
           </form>
