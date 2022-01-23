@@ -11,11 +11,22 @@ import SendIcon from "@mui/icons-material/Send";
 import Link from "next/link";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { parseCookies } from "@/helpers/index";
 
-export default function MediaAddPage() {
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req);
+
+  return {
+    props: {
+      token,
+    }, 
+  };
+}
+
+export default function MediaAddPage({token}) {
   const [values, setValues] = useState({
     name: "",
-    is_active: "",
+    is_active: false,
   });
 
   const router = useRouter();
@@ -33,7 +44,7 @@ export default function MediaAddPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const fieldsRequired = { ...values };
-    delete fieldsRequired.is_active; //ispublished is not mandatory
+    delete fieldsRequired.is_active; //isactive is not mandatory
 
     const hasEmptyField = Object.values(fieldsRequired).some(
       (element) => element === ""
@@ -48,6 +59,7 @@ export default function MediaAddPage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(values),
     });

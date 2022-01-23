@@ -27,6 +27,7 @@ export const API_URL = {
   GetMedias: Base_API_URL + "/media",
   GetAllMedia: Base_API_URL + "/media/getall",
   AddMedia: Base_API_URL + "/media/save",
+  DeleteMedia: Base_API_URL + "/media/delete",
   SearchKeyword: Base_API_URL + "/keyword/search",
   GetKeywords: Base_API_URL + "/keyword",
   Login: Base_API_URL + "/login",

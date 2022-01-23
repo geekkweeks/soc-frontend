@@ -20,8 +20,29 @@ import SearchIcon from "@mui/icons-material/Search";
 import Chip from "@mui/material/Chip";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import { parseCookies } from "@/helpers/index";
 
-export default function MediaPage() {
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req);
+
+  return {
+    props: {
+      token,
+    },
+  };
+}
+
+const removeItem = (array, item) => {
+  const newArray = array.slice();
+  newArray.splice(
+    newArray.findIndex((a) => a === item),
+    1
+  );
+
+  return newArray;
+};
+
+export default function MediaPage({ token }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -44,6 +65,9 @@ export default function MediaPage() {
     axios({
       method: "post",
       url: `${API_URL.SearchMedia}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: params,
     }).then(
       (response) => {
@@ -59,7 +83,7 @@ export default function MediaPage() {
 
   const handleSearchMedia = () => {
     fetchMedias(1);
-  }
+  };
 
   useEffect(() => {
     fetchMedias(1);
@@ -67,9 +91,19 @@ export default function MediaPage() {
 
   const handleDeleteMedia = useCallback(
     (row) => async () => {
-      const resDelete = await axios.delete(`${API_URL.DeleteMedia}/${row.id}`);
+      const resDelete = await axios.delete(`${API_URL.DeleteMedia}/${row.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const response = await axios.get(
-        `${API_URL.GetMedias}/${currentPage}/${perPage}`
+        `${API_URL.GetMedias}/${currentPage}/${perPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       setData(removeItem(response.data.data, row));
@@ -88,12 +122,7 @@ export default function MediaPage() {
       },
       {
         name: "Media",
-        selector: "media",
-        sortable: true,
-      },
-      {
-        name: "Keyword",
-        selector: "keyword",
+        selector: "name",
         sortable: true,
       },
       {

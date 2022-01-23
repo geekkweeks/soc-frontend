@@ -111,7 +111,6 @@ export default function ClientsPage({ token }) {
         `${API_URL.DeleteClient}/${row.id}`,
         {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
