@@ -10,7 +10,7 @@ import ArchiveIcon from "@mui/icons-material/Archive";
 import IconButton from "@mui/material/IconButton";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
-import { API_URL } from "@/config/index";
+import { API_KEYWORD } from "@/config/index";
 import { ToastContainer, toast } from "react-toastify";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -20,8 +20,29 @@ import SearchIcon from "@mui/icons-material/Search";
 import Chip from "@mui/material/Chip";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import { parseCookies } from "@/helpers/index";
 
-export default function KeywordPage() {
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req);
+  return {
+    props: {
+      token,
+    },
+  };
+}
+
+const removeItem = (array, item) => {
+  const newArray = array.slice();
+  newArray.splice(
+    newArray.findIndex((a) => a === item),
+    1
+  );
+
+  return newArray;
+};
+
+
+export default function KeywordPage({token}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -43,8 +64,12 @@ export default function KeywordPage() {
 
     axios({
       method: "post",
-      url: `${API_URL.SearchKeyword}`,
+      url: `${API_KEYWORD.SearchKeyword}`,
       data: params,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
     }).then(
       (response) => {
         setData(response.data.data);
@@ -63,9 +88,17 @@ export default function KeywordPage() {
 
   const handleDeleteKeyword = useCallback(
     (row) => async () => {
-      const resDelete = await axios.delete(`${API_URL.DeleteKeyword}/${row.id}`);
+      const resDelete = await axios.delete(`${API_KEYWORD.DeleteKeyword}/${row.id}`,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       const response = await axios.get(
-        `${API_URL.GetKeywords}/${currentPage}/${perPage}`
+        `${API_KEYWORD.GetKeywords}/${currentPage}/${perPage}`,{
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
 
       setData(removeItem(response.data.data, row));
@@ -89,6 +122,11 @@ export default function KeywordPage() {
       {
         name: "Keyword",
         selector: "keyword",
+        sortable: true,
+      },
+      {
+        name: "Client",
+        selector: "client_name",
         sortable: true,
       },
       {

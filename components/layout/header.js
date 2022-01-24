@@ -63,6 +63,9 @@ export default function header() {
                     <Link href="/medias">Medias</Link>
                   </Typography>
                   <Typography sx={{ minWidth: 100 }}>
+                    <Link href="/subjects">Subjects</Link>
+                  </Typography>
+                  <Typography sx={{ minWidth: 100 }}>
                     <Link href="/keywords">Keywords</Link>
                   </Typography>
                   <Tooltip title="Account settings">

@@ -11,8 +11,18 @@ import SendIcon from "@mui/icons-material/Send";
 import Link from "next/link";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { parseCookies } from "@/helpers/index";
 
-export default function ClientAddPage() {
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req);
+  return {
+    props: {
+      token,
+    },
+  };
+}
+
+export default function ClientAddPage({token}) {
   const [values, setValues] = useState({
     name: "",
     short_name: "",
@@ -53,6 +63,7 @@ export default function ClientAddPage() {
       method: "POST",
       headers:{
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(values)
     });
