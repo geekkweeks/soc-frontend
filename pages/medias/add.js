@@ -8,7 +8,6 @@ import { useRouter } from "next/router";
 import { API_URL } from "@/config/index";
 import { Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import Link from "next/link";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { parseCookies } from "@/helpers/index";
@@ -19,11 +18,11 @@ export async function getServerSideProps({ req }) {
   return {
     props: {
       token,
-    }, 
+    },
   };
 }
 
-export default function MediaAddPage({token}) {
+export default function MediaAddPage({ token }) {
   const [values, setValues] = useState({
     name: "",
     is_active: false,
@@ -69,7 +68,7 @@ export default function MediaAddPage({token}) {
     } else {
       const media = await res.json();
       toast.success("Data has been inserted");
-      router.push(`/media/${media.data.id}`);
+      router.push(`/medias`);
     }
   };
 

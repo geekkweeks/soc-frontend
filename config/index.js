@@ -28,6 +28,7 @@ export const API_URL = {
   GetAllMedia: Base_API_URL + "/media/getall",
   AddMedia: Base_API_URL + "/media/save",
   DeleteMedia: Base_API_URL + "/media/delete",
+  UpdateMedia: Base_API_URL + "/media/update",
   Login: Base_API_URL + "/login",
   Me: Base_API_URL + "/me",
   AddFeed: Base_API_URL + "/feed/save",
