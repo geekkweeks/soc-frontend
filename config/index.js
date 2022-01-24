@@ -36,6 +36,13 @@ export const API_URL = {
   GetSubjectByClient: Base_API_URL + "/subject/getbyclient",
 };
 
+export const API_SUBJECT ={
+  AddSubject: Base_API_URL + "/subject/save",
+  SearchSubject: Base_API_URL + "/subject/search",
+  GetSubject: Base_API_URL + "/subject",
+  DeleteSubject: Base_API_URL + "/subject/delete",
+}
+
 export const API_KEYWORD = {
   AddKeyword: Base_API_URL + "/keyword/save",
   SearchKeyword: Base_API_URL + "/keyword/search",

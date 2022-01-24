@@ -4,12 +4,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import { useRouter } from "next/router";
 import { API_KEYWORD, API_URL } from "@/config/index";
-import { Button } from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
-import Link from "next/link";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { parseCookies } from "@/helpers/index";
 import Grid from "@mui/material/Grid";
@@ -49,8 +44,6 @@ export default function KeywordDetailPage({ token }) {
   };
 
   const fetchMedias = async (mediaId) => {
-    console.log("media id", mediaId);
-    //get conversationtype
     const res = await fetch(`${API_URL.GetAllMedia}`, {
       method: "GET",
       headers: {
