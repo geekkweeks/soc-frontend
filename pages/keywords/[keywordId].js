@@ -29,6 +29,7 @@ export default function KeywordDetailPage({ token }) {
   const [client, setClient] = useState([]);
   const [media, setMedia] = useState([]);
   const [mediaSelected, setMediaSelected] = useState(null);
+  const [clientSelected, setClientSelected] = useState(null);
 
   const fetchKeywordById = async (keywordId) => {
     const res = await fetch(`${API_KEYWORD.GetKeywords}/${keywordId}`, {
@@ -88,13 +89,20 @@ export default function KeywordDetailPage({ token }) {
 
     const data = await res.json();
     if (res.ok) {
-      const customData = data.data.map((obj, idx) => {
-        return {
-          label: obj.name,
-          value: obj.id,
-        };
-      });
-      setClient(customData);
+      const customData = data.data
+        .filter((p) => p.id === clientId)
+        .map((obj, idx) => {
+          return {
+            label: obj.name,
+            value: obj.id,
+          };
+        });
+
+      if (customData && customData.length > 0) {
+        console.log(customData);
+        setClient(customData);
+        setClientSelected(clientId);
+      }
     }
   };
 
@@ -109,24 +117,29 @@ export default function KeywordDetailPage({ token }) {
       <Box m={2} p={3}>
         <form>
           <Grid container spacing={8}>
-            {keyword && (
-              <Grid item xs={3}>
-                <Autocomplete
-                  id="disable-close-on-select"
-                  size="small"
-                  options={client}
-                  disabled
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Client"
-                      name="client"
-                      variant="standard"
-                    />
-                  )}
-                />
-              </Grid>
-            )}
+            {
+              (keyword,
+              client,
+              clientSelected && (
+                <Grid item xs={3}>
+                  <Autocomplete
+                    size="small"
+                    options={client}
+                    getOptionLabel={(option) => option.label}
+                    defaultValue={client[0]}
+                    disabled
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Client"
+                        name="client"
+                        variant="standard"
+                      />
+                    )}
+                  />
+                </Grid>
+              ))
+            }
 
             {
               (keyword,
@@ -134,7 +147,6 @@ export default function KeywordDetailPage({ token }) {
               mediaSelected && (
                 <Grid item xs={3}>
                   <Autocomplete
-                    id="disable-close-on-select"
                     size="small"
                     options={media}
                     getOptionLabel={(option) => option.label}
