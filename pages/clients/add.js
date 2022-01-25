@@ -1,4 +1,4 @@
-import React, { useState  } from "react";
+import React, { useState } from "react";
 import Layout from "@/components/layout/layout";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -22,7 +22,8 @@ export async function getServerSideProps({ req }) {
   };
 }
 
-export default function ClientAddPage({token}) {
+export default function ClientAddPage({ token }) {
+  const [progress, setProgress] = useState(false);
   const [values, setValues] = useState({
     name: "",
     short_name: "",
@@ -31,7 +32,7 @@ export default function ClientAddPage({token}) {
     description: "",
     logo_url: "",
     is_active: "",
-  });  
+  });
 
   const router = useRouter();
 
@@ -47,38 +48,68 @@ export default function ClientAddPage({token}) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const fieldsRequired = {...values};   
-    delete fieldsRequired.is_active;   //ispublished is not mandatory  
+    setProgress(true);
+    const fieldsRequired = { ...values };
+    delete fieldsRequired.is_active; //ispublished is not mandatory
 
     const hasEmptyField = Object.values(fieldsRequired).some(
       (element) => element === ""
     );
 
+    let needCallAPI = true;
     if (hasEmptyField) {
       toast.error("Please fill all fields");
-      return;
+      needCallAPI = false;
     }
 
-    const res = await fetch(`${API_URL.AddClient}`,{
-      method: "POST",
-      headers:{
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(values)
-    });
-
-    if(!res.ok){
-      toast.error("Something went wrong");
-    }else{
-      const client = await res.json();
-      toast.success("Data has been inserted");
-      router.push(`/clients/${client.data.id}`);
+    if (!/^[a-zA-Z]+$/.test(values.short_name)) {
+      toast.error("Short name allowed letter and without space only");
+      needCallAPI = false;
     }
 
+    if (needCallAPI) {
+      //check DB by shortName is exist
+      const resCheckDb = await fetch(`${API_URL.ClientCheckDBExist}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ shortName: values.short_name }),
+      });
+
+      if (!resCheckDb.ok) {
+        toast.error("Something went wrong");
+      } else {
+        const dataCheckDb = await resCheckDb.json();
+        if (dataCheckDb && !dataCheckDb.data) {
+          //call api insert new data
+          const res = await fetch(`${API_URL.AddClient}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(values),
+          });
+
+          if (!res.ok) {
+            toast.error("Something went wrong");
+          } else {
+            const client = await res.json();
+            toast.success("Data has been inserted");
+            router.push(`/clients`);
+          }
+        } else
+          toast.error(
+            `Database with name db_${values.short_name} already exist`
+          );
+      }
+    }
+
+    setProgress(false);
   };
   return (
-    
     <Layout title="Client-Add">
       <h1>Add Client</h1>
       <form onSubmit={handleSubmit} method="post">
@@ -128,6 +159,7 @@ export default function ClientAddPage({token}) {
               label="Description"
               id="description"
               name="description"
+              style={{ width: 500 }}
               multiline
               rows={2}
               maxRows={Infinity}
@@ -160,7 +192,12 @@ export default function ClientAddPage({token}) {
             />
           </div>
           <div>
-            <Button type="submit" variant="contained" endIcon={<SendIcon />}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={progress}
+              endIcon={<SendIcon />}
+            >
               Send
             </Button>
             <ToastContainer />
@@ -170,5 +207,3 @@ export default function ClientAddPage({token}) {
     </Layout>
   );
 }
-
-

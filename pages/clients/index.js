@@ -260,7 +260,7 @@ export default function ClientsPage({ token }) {
         />
       </Box>
       <DataTable
-        title="Clients"
+        title=""
         columns={columns}
         data={data}
         progressPending={loading}
