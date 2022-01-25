@@ -5,15 +5,15 @@ import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { useRouter } from "next/router";
-import { API_KEYWORD, API_URL } from "@/config/index";
-import { Button } from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
-import Link from "next/link";
-import { ToastContainer, toast } from "react-toastify";
+import { API_SUBJECT, API_URL } from "@/config/index";
 import "react-toastify/dist/ReactToastify.css";
 import { parseCookies } from "@/helpers/index";
 import Grid from "@mui/material/Grid";
 import Autocomplete from "@mui/material/Autocomplete";
+import { Button } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export async function getServerSideProps({ req }) {
   const { token } = parseCookies(req);
@@ -24,31 +24,20 @@ export async function getServerSideProps({ req }) {
   };
 }
 
-export default function KeywordAddPage({ token }) {
-  const [progress, setProgress] = useState(false);
-
-  const [client, setClient] = useState([]);
-
-  const [media, setMedia] = useState([]);
-
+export default function SubjectAddPage({ token }) {
   const router = useRouter();
 
+  const [progress, setProgress] = useState(false);
+  const [client, setClient] = useState([]);
   const [values, setValues] = useState({
     client_id: null,
-    media_id: null,
-    keyword: "",
-    sequence: 0,
+    order_no: 0,
     is_active: false,
+    color: "",
+    title: "",
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
-    console.log(values);
-  };
-
   const fetchClients = async () => {
-    //get conversationtype
     const res = await fetch(`${API_URL.GetAllClient}`, {
       method: "GET",
       headers: {
@@ -69,78 +58,64 @@ export default function KeywordAddPage({ token }) {
     }
   };
 
-  const fetchMedias = async () => {
-    //get conversationtype
-    const res = await fetch(`${API_URL.GetAllMedia}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      const customData = data.data.map((obj, idx) => {
-        return {
-          label: obj.name,
-          value: obj.id,
-        };
-      });
-      setMedia(customData);
-    }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setValues({ ...values, [name]: value });
   };
 
   useEffect(() => {
     fetchClients();
-    fetchMedias();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setProgress(true);
+
     const fieldsRequired = { ...values };
     delete fieldsRequired.is_active; //ispublished is not mandatory
 
     const hasEmptyField = Object.values(fieldsRequired).some(
-      (element) => element === ""
+      (element) => element === "" || element === null
     );
 
+    let callAPINeeded = true;
     if (hasEmptyField) {
-      console.log(values);
+      console.log("masuk", values);
       toast.error("Please fill all fields");
-      setProgress(false);
-      return;
+      callAPINeeded = false;
     }
 
-    //CALL API
-    const res = await fetch(`${API_KEYWORD.AddKeyword}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(values),
-    });
+    if (callAPINeeded) {
+      //CALL API
+      const res = await fetch(`${API_SUBJECT.AddSubject}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
 
-    if (!res.ok) {
-      toast.error("Something went wrong");
-    } else {
-      const media = await res.json();
-      toast.success("Data has been inserted");
-      router.push(`/keywords`);
+      if (!res.ok) {
+        toast.error("Something went wrong");
+      } else {
+        const media = await res.json();
+        toast.success("Data has been inserted");
+        router.push(`/subjects`);
+      }
     }
 
     setProgress(false);
   };
 
   return (
-    <Layout title="Keyword-Add">
-      <h1>Keyword Add</h1>
+    <Layout title="Subject-Add">
+      <h1>Add Subject</h1>
+
       <Box m={2} p={3}>
         <form onSubmit={handleSubmit} method="post">
           <Grid container spacing={8}>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Autocomplete
                 id="disable-close-on-select"
                 size="small"
@@ -160,52 +135,44 @@ export default function KeywordAddPage({ token }) {
                 )}
               />
             </Grid>
-
-            <Grid item xs={3}>
-              <Autocomplete
-                id="disable-close-on-select"
-                size="small"
-                options={media}
-                onChange={(event, value) =>
-                  value !== null
-                    ? (values.media_id = value["value"])
-                    : (values.media_id = null)
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Media"
-                    name="media"
-                    variant="standard"
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}></Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Keyword"
-                id="keyword"
-                name="keyword"
-                value={values.keyword}
-                variant="standard"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={6}></Grid>
+            <Grid item xs={4}></Grid>
+            <Grid item xs={4}></Grid>
             <Grid item xs={4}>
               <TextField
-                label="Sequence"
-                type="number"
-                InputProps={{ inputProps: { min: 0 } }}
-                id="sequence"
-                name="sequence"
-                defaultValue={0}
+                label="Title"
+                id="title"
+                name="title"
+                value={values.title}
                 variant="standard"
                 onChange={handleInputChange}
               />
             </Grid>
-            <Grid item xs={8}></Grid>
+            <Grid item xs={4}></Grid>
+            <Grid item xs={4}></Grid>
+            <Grid item xs={4}>
+              <TextField
+                label="Color"
+                id="color"
+                name="color"
+                value={values.color}
+                variant="standard"
+                onChange={handleInputChange}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                label="Order No"
+                type="number"
+                InputProps={{ inputProps: { min: 0 } }}
+                id="order_no"
+                name="order_no"
+                defaultValue={0}
+                value={values.order_no}
+                variant="standard"
+                onChange={handleInputChange}
+              />
+            </Grid>
+            <Grid item xs={4}></Grid>
             <Grid item xs={4}>
               <FormControlLabel
                 id="is_active"
@@ -220,7 +187,7 @@ export default function KeywordAddPage({ token }) {
               />
             </Grid>
             <Grid item xs={8}></Grid>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Button
                 type="submit"
                 variant="contained"

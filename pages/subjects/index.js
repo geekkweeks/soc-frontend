@@ -159,6 +159,11 @@ export default function SubjectsPage({ token }) {
       sortable: true,
     },
     {
+      name: "Color",
+      selector: "color",
+      sortable: false,
+    },
+    {
       name: "Active",
       selector: "is_active",
       cell: (row) =>
@@ -189,16 +194,12 @@ export default function SubjectsPage({ token }) {
             <DeleteIcon fontSize="inherit" />
           </a>
         </IconButton>,
-        <IconButton aria-label="delete" size="small">
-          <ArchiveIcon fontSize="inherit" />
-        </IconButton>,
       ],
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
     },
   ]);
-  
 
   return (
     <Layout title="subjects">

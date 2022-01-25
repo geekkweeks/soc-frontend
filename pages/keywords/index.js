@@ -135,6 +135,11 @@ export default function KeywordPage({token}) {
         sortable: true,
       },
       {
+        name: "Sequence",
+        selector: "sequence",
+        sortable: true,
+      },
+      {
         name: "Active",
         selector: "is_active",
         cell: (row) =>
