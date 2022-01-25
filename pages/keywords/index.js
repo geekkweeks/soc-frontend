@@ -6,18 +6,16 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ArchiveIcon from "@mui/icons-material/Archive";
 import IconButton from "@mui/material/IconButton";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
 import { API_KEYWORD } from "@/config/index";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import "react-toastify/dist/ReactToastify.css";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import Chip from "@mui/material/Chip";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { parseCookies } from "@/helpers/index";
@@ -118,12 +116,7 @@ export default function KeywordPage({token}) {
         selector: "id",
         sortable: true,
         omit: true,
-      },
-      {
-        name: "Keyword",
-        selector: "keyword",
-        sortable: true,
-      },
+      },      
       {
         name: "Client",
         selector: "client_name",
@@ -132,6 +125,11 @@ export default function KeywordPage({token}) {
       {
         name: "Media",
         selector: "media_name",
+        sortable: true,
+      },
+      {
+        name: "Keyword",
+        selector: "keyword",
         sortable: true,
       },
       {
@@ -169,10 +167,7 @@ export default function KeywordPage({token}) {
             <a href="#" onClick={handleDeleteKeyword(row)}>
               <DeleteIcon fontSize="inherit" />
             </a>
-          </IconButton>,
-          <IconButton aria-label="delete" size="small">
-            <ArchiveIcon fontSize="inherit" />
-          </IconButton>,
+          </IconButton>
         ],
         ignoreRowClick: true,
         allowOverflow: true,
