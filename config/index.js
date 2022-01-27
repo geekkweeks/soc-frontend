@@ -21,9 +21,7 @@ export const API_URL = {
   DeleteClient: Base_API_URL + "/client/delete",
   UpdateClient: Base_API_URL + "/client/update",
   SearchClient: Base_API_URL + "/client/search",
-  ClientCheckDBExist: Base_API_URL + "/client/checkdbexist",
-  GetFeeds: Base_API_URL + "/feed",
-  SearchFeed: Base_API_URL + "/feed/search",
+  ClientCheckDBExist: Base_API_URL + "/client/checkdbexist",  
   SearchMedia: Base_API_URL + "/media/search",
   GetMedias: Base_API_URL + "/media",
   GetAllMedia: Base_API_URL + "/media/getall",
@@ -37,6 +35,12 @@ export const API_URL = {
   TalksAbout: Base_API_URL + "/talkabout",
   GetSubjectByClient: Base_API_URL + "/subject/getbyclient",
 };
+
+export const API_FEED = {
+  GetFeeds: Base_API_URL + "/feed",
+  SearchFeed: Base_API_URL + "/feed/search",
+  AddFeed: Base_API_URL + "/feed/save"
+}
 
 export const API_SUBJECT ={
   AddSubject: Base_API_URL + "/subject/save",

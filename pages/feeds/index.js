@@ -5,7 +5,7 @@ import DataTable from "react-data-table-component";
 import IconButton from "@mui/material/IconButton";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import axios from "axios";
-import { API_URL } from "@/config/index";
+import { API_FEED } from "@/config/index";
 import { ToastContainer, toast } from "react-toastify";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -55,7 +55,7 @@ export default function FeedsPage({token}) {
       headers:{
         Authorization: `Bearer ${token}`
       },
-      url: `${API_URL.SearchFeed}`,
+      url: `${API_FEED.SearchFeed}`,
       data: params,
     }).then(
       (response) => {

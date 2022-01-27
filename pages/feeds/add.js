@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { useRouter } from "next/router";
-import { API_URL } from "@/config/index";
+import { API_URL, API_FEED } from "@/config/index";
 import { Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import Link from "next/link";
@@ -22,7 +22,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { parseCookies } from "@/helpers/index";
+import { parseCookies, getFullDate } from "@/helpers/index";
 
 export async function getServerSideProps({ req }) {
   const { token } = parseCookies(req);
@@ -34,6 +34,7 @@ export async function getServerSideProps({ req }) {
 }
 
 export default function FeedAddPage({ token }) {
+  const router = useRouter();
 
   const [progress, setProgress] = useState(false);
 
@@ -45,17 +46,6 @@ export default function FeedAddPage({ token }) {
 
   const [takenDate, setTakenDate] = useState(null);
   const [postedDate, setPostedDate] = useState(null);
-  //options selected
-  const [clientSelected, setClientSelected] = useState(null);
-  const [subjectSelected, setSubjectSelected] = useState(null);
-  const [talkAboutSelected, setTalkAboutSelected] = useState(null);
-  const [conversationTypeSelected, setConversationTypeSelected] =
-    useState(null);
-  const [corporateSelected, setCorporateSelected] = useState(null);
-  const [educationSelected, setEducationSelected] = useState(null);
-  const [genderSelected, setGenderSelected] = useState(null);
-  const [ageSelected, setAgeSelected] = useState(null);
-  const [mediaSelected, setMediaSelected] = useState(null);
 
   const corporateList = [
     {
@@ -130,22 +120,27 @@ export default function FeedAddPage({ token }) {
   ];
 
   const [values, setValues] = useState({
-    client_id: "",
-    media_id: "",
-    taken_date: "",
-    posted_date: "",
+    client_id: null,
+    media_id: null,
+    taken_date: null,
+    posted_date: null,
     keyword: "",
     title: "",
     caption: "",
     content: "",
     permalink: "",
     thumblink: "",
-    replies: "",
-    views: "",
-    favs: "",
-    likes: "",
-    comment: "",
-    subject_id: "",
+    replies: 0,
+    views: 0,
+    favs: 0,
+    likes: 0,
+    comment: 0,
+    spam: false,
+    is_active: false,
+  });
+
+  const [analysis, setAnalysis] = useState({
+    subject_id: null,
     talk_about: "",
     conversation_type: "",
     tags: "",
@@ -156,24 +151,24 @@ export default function FeedAddPage({ token }) {
     location: "",
   });
 
-  const router = useRouter();
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
-  };  
+  };
+
+  const handleInputAnalysisChange = (e) => {
+    const { name, value } = e.target;
+    setAnalysis({ ...analysis, [name]: value });
+  };
 
   const handleOptionsClientChange = (event, value) => {
     //reset subject value
     setSubject([]);
-    if(value != null) {
-      console.log(value.value);
-      setClientSelected(value.value);
-      fetchSubjects(value.value)
-    }else{
-      setClientSelected(null);
-    }
-  }
+    if (value != null) {
+      values.client_id = value.value;
+      fetchSubjects(value.value);
+    } else values.client_id = null;
+  };
 
   const fetchConversationTypes = async () => {
     //get conversationtype
@@ -266,7 +261,7 @@ export default function FeedAddPage({ token }) {
   const fetchSubjects = async (clientid) => {
     //get conversationtype
     const res = await fetch(`${API_URL.GetSubjectByClient}/${clientid}`, {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -294,32 +289,41 @@ export default function FeedAddPage({ token }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setProgress(true)
-    values.client_id = clientSelected;
-    values.media_id = mediaSelected;
-    values.taken_date = takenDate;
-    values.posted_date = postedDate;    
-    values.subject_id = subjectSelected;
-    values.talk_about = talkAboutSelected;
-    values.conversation_type = conversationTypeSelected;
-    values.corporate = corporateSelected;
-    values.education = educationSelected;
-    values.gender = genderSelected;
-    values.age = ageSelected;
+    setProgress(true);
+    const payLoad = { feed: values, analysis: analysis };
 
-    //call API
-
-    setTimeout(
-      function(){
-        console.log('start')
-        console.log(values);
-        setProgress(false)
-      } , 
-      3000
+    const hasEmptyField = Object.values(values).some(
+      (element) => element === "" || element === null
     );
 
-    
-    //e.reset()
+    let callAPINeeded = true;
+    if (hasEmptyField) {
+      console.log("masuk", values);
+      toast.error("Please fill all fields");
+      callAPINeeded = false;
+    }
+
+    if (callAPINeeded) {
+      //CALL API
+      const res = await fetch(`${API_FEED.AddFeed}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payLoad),
+      });
+
+      if (!res.ok) {
+        toast.error("Something went wrong");
+      } else {
+        const media = await res.json();
+        toast.success("Data has been inserted");
+        router.push(`/feeds`);
+      }
+    }
+
+    setProgress(false);
   };
 
   return (
@@ -334,11 +338,6 @@ export default function FeedAddPage({ token }) {
                   id="disable-close-on-select"
                   size="small"
                   options={client}
-                  // onChange={(event, value) =>
-                  //   value !== null
-                  //     ? setClientSelected(value["value"])
-                  //     : setClientSelected(null)
-                  // }
                   onChange={handleOptionsClientChange}
                   renderInput={(params) => (
                     <TextField
@@ -357,8 +356,8 @@ export default function FeedAddPage({ token }) {
                   options={media}
                   onChange={(event, value) =>
                     value !== null
-                      ? setMediaSelected(value["value"])
-                      : setMediaSelected(null)
+                      ? (values.media_id = value["value"])
+                      : (values.media_id = null)
                   }
                   renderInput={(params) => (
                     <TextField
@@ -376,7 +375,9 @@ export default function FeedAddPage({ token }) {
                 <DatePicker
                   label="Taken Date"
                   value={takenDate}
+                  dateFromat="YYYY-MM-dd"
                   onChange={(newValue) => {
+                    setValues({ ...values, taken_date: getFullDate(newValue) });
                     setTakenDate(newValue);
                   }}
                   renderInput={(params) => <TextField {...params} />}
@@ -386,7 +387,12 @@ export default function FeedAddPage({ token }) {
                 <DatePicker
                   label="Posted Date"
                   value={postedDate}
+                  dateFromat="YYYY-MM-dd"
                   onChange={(newValue) => {
+                    setValues({
+                      ...values,
+                      posted_date: getFullDate(newValue),
+                    });
                     setPostedDate(newValue);
                   }}
                   renderInput={(params) => <TextField {...params} />}
@@ -519,6 +525,33 @@ export default function FeedAddPage({ token }) {
                   onChange={handleInputChange}
                 />
               </Grid>
+              <Grid item xs={2}></Grid>
+              <Grid item xs={2}>
+              <FormControlLabel
+                id="spam"
+                name="spam"
+                control={
+                  <Checkbox
+                    defaultChecked={false}
+                    onChange={(e) => (values.spam = e.target.checked)}
+                  />
+                }
+                label="Spam"
+              />
+              </Grid>
+              <Grid item xs={4}>
+              <FormControlLabel
+                id="is_active"
+                name="is_active"
+                control={
+                  <Checkbox
+                    defaultChecked={false}
+                    onChange={(e) => (values.is_active = e.target.checked)}
+                  />
+                }
+                label="Is Active"
+              />
+              </Grid>
             </Grid>
             <br />
             <Accordion>
@@ -537,8 +570,8 @@ export default function FeedAddPage({ token }) {
                     options={subject}
                     onChange={(event, value) =>
                       value !== null
-                        ? setSubjectSelected(value["value"])
-                        : setSubjectSelected(null)
+                        ? (analysis.subject_id = value["value"])
+                        : (analysis.subject_id = null)
                     }
                     renderInput={(params) => (
                       <TextField
@@ -556,8 +589,8 @@ export default function FeedAddPage({ token }) {
                     size="small"
                     onChange={(event, value) =>
                       value !== null
-                        ? setTalkAboutSelected(value["value"])
-                        : setTalkAboutSelected(null)
+                        ? (analysis.talk_about = value["value"])
+                        : (analysis.talk_about = null)
                     }
                     options={talkAbout}
                     renderInput={(params) => (
@@ -577,8 +610,8 @@ export default function FeedAddPage({ token }) {
                     options={conversationtype}
                     onChange={(event, value) =>
                       value !== null
-                        ? setConversationTypeSelected(value["value"])
-                        : setConversationTypeSelected(null)
+                        ? (analysis.conversation_type = value["value"])
+                        : (analysis.conversationtype = null)
                     }
                     renderInput={(params) => (
                       <TextField
@@ -597,7 +630,7 @@ export default function FeedAddPage({ token }) {
                     name="tags"
                     value={values.tags}
                     variant="standard"
-                    onChange={handleInputChange}
+                    onChange={handleInputAnalysisChange}
                   />
                 </Grid>
                 <Grid item xs={3}>
@@ -607,8 +640,8 @@ export default function FeedAddPage({ token }) {
                     options={corporateList}
                     onChange={(event, value) =>
                       value !== null
-                        ? setCorporateSelected(value["value"])
-                        : setCorporateSelected(null)
+                        ? (analysis.corporate = value["value"])
+                        : (analysis.corporate = null)
                     }
                     renderInput={(params) => (
                       <TextField
@@ -627,8 +660,8 @@ export default function FeedAddPage({ token }) {
                     options={educationList}
                     onChange={(event, value) =>
                       value !== null
-                        ? setEducationSelected(value["value"])
-                        : setEducationSelected(null)
+                        ? (analysis.education = value["value"])
+                        : (analysis.education = null)
                     }
                     renderInput={(params) => (
                       <TextField
@@ -647,8 +680,8 @@ export default function FeedAddPage({ token }) {
                     options={sexList}
                     onChange={(event, value) =>
                       value !== null
-                        ? setGenderSelected(value["value"])
-                        : setGenderSelected(null)
+                        ? (analysis.gender = value["value"])
+                        : (analysis.gender = null)
                     }
                     renderInput={(params) => (
                       <TextField
@@ -667,8 +700,8 @@ export default function FeedAddPage({ token }) {
                     options={ageList}
                     onChange={(event, value) =>
                       value !== null
-                        ? setAgeSelected(value["value"])
-                        : setAgeSelected(null)
+                        ? (analysis.age = value["value"])
+                        : (analysis.age = null)
                     }
                     renderInput={(params) => (
                       <TextField
@@ -687,19 +720,21 @@ export default function FeedAddPage({ token }) {
                     name="location"
                     value={values.location}
                     variant="standard"
-                    onChange={handleInputChange}
+                    onChange={handleInputAnalysisChange}
                   />
                 </Grid>
               </AccordionDetails>
             </Accordion>
             <br />
-            <Button 
-              type="submit" 
-              variant="contained" 
+            <Button
+              type="submit"
+              variant="contained"
               disabled={progress}
-              endIcon={<SendIcon />}>
+              endIcon={<SendIcon />}
+            >
               Save
             </Button>
+            <ToastContainer />
           </form>
         </Box>
       </LocalizationProvider>
