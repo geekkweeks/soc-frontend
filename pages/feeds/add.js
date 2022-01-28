@@ -328,7 +328,7 @@ export default function FeedAddPage({ token }) {
 
   return (
     <Layout title="Feed-Add">
-      <h1>Add New Feed</h1>
+      <h1>Add - Feed</h1>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Box m={2} p={3}>
           <form onSubmit={handleSubmit} method="post">
