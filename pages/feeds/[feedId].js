@@ -431,7 +431,7 @@ export default function FeedDetailPage({ token }) {
                   {feed && (
                     <Grid item xs={4}>
                       <TextField
-                        label="Gender"
+                        label="Age"
                         defaultValue={feed.age}
                         variant="standard"
                         fullWidth

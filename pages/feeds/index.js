@@ -14,6 +14,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {parseCookies} from '@/helpers/index'
 
 export async function getServerSideProps({ req }) {
@@ -91,6 +93,14 @@ export default function FeedsPage({token}) {
   }, []);
 
 
+  const handleDeleteFeed = useCallback(
+    (row) => async () => {
+      console.log(row);
+    },
+    [currentPage, perPage, totalRows]
+  );
+
+
   const columns = useMemo(
     () => [
       {
@@ -135,7 +145,17 @@ export default function FeedsPage({token}) {
             <Link href={`/feeds/${row.id}`}>
               <ExpandMoreIcon fontSize="inherit" />
             </Link>
-          </IconButton>
+          </IconButton>,
+          <IconButton aria-label="edit" size="small">
+          <Link href={`/feeds/edit/${row.id}`}>
+            <EditIcon fontSize="inherit" />
+          </Link>
+        </IconButton>,
+        <IconButton aria-label="delete" size="small">
+          <a href="#" onClick={handleDeleteFeed(row)}>
+            <DeleteIcon fontSize="inherit" />
+          </a>
+        </IconButton>
         ],
         ignoreRowClick: true,
         allowOverflow: true,

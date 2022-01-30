@@ -129,7 +129,7 @@ export default function EditSubjectPage({ token }) {
 
   return (
     <Layout title="Subject-Edit">
-      <h1>Edit Subject</h1>
+      <h1>Edit - Subject</h1>
 
       <Box m={2} p={3}>
         <form onSubmit={handleSubmit} method="post">

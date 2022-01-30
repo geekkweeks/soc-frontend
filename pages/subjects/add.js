@@ -110,7 +110,7 @@ export default function SubjectAddPage({ token }) {
 
   return (
     <Layout title="Subject-Add">
-      <h1>Add Subject</h1>
+      <h1>Add - Subject</h1>
 
       <Box m={2} p={3}>
         <form onSubmit={handleSubmit} method="post">

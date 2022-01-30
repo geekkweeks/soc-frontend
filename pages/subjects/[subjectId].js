@@ -4,11 +4,10 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import { API_SUBJECT, API_URL } from "@/config/index";
+import { API_SUBJECT } from "@/config/index";
 import "react-toastify/dist/ReactToastify.css";
 import { parseCookies } from "@/helpers/index";
 import Grid from "@mui/material/Grid";
-import Autocomplete from "@mui/material/Autocomplete";
 
 export async function getServerSideProps({ req }) {
   const { token } = parseCookies(req);
@@ -45,7 +44,7 @@ export default function SubjectDetailPage({ token }) {
 
   return (
     <Layout title="Subject-Detail">
-      <h1>Subject Detail</h1>
+      <h1>Detail - Subject</h1>
      
       <Box m={2} p={3}>
         <Grid container spacing={8}>

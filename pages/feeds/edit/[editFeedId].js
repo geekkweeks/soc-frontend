@@ -33,10 +33,12 @@ export async function getServerSideProps({ req }) {
   };
 }
 
-export default function FeedAddPage({ token }) {
+export default function FeedEditPage({ token }) {
   const router = useRouter();
 
   const [progress, setProgress] = useState(false);
+
+  const [feed, setData] = useState(null);
 
   const [conversationtype, setConversationtype] = useState([]);
   const [talkAbout, setTalkAbout] = useState([]);
@@ -280,7 +282,18 @@ export default function FeedAddPage({ token }) {
     }
   };
 
+  const fetchFeedById = async (feedId) => {
+    const response = await axios.get(`${API_FEED.GetFeeds}/${feedId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setData(response.data.data);
+  };
+
   useEffect(() => {
+    const id = window.location.href.split("/").pop();
+    fetchFeedById(id);
     fetchConversationTypes();
     fetchTalksAbout();
     fetchClients();
@@ -327,13 +340,14 @@ export default function FeedAddPage({ token }) {
   };
 
   return (
-    <Layout title="Feed-Add">
-      <h1>Add - Feed</h1>
+    <Layout title="Feed-Edit">
+      <h1>Edit - Feed</h1>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Box m={2} p={3}>
           <form onSubmit={handleSubmit} method="post">
             <Grid container spacing={8}>
-              <Grid item xs={3}>
+            {feed && (
+                <Grid item xs={3}>
                 <Autocomplete
                   id="disable-close-on-select"
                   size="small"
@@ -349,7 +363,10 @@ export default function FeedAddPage({ token }) {
                   )}
                 />
               </Grid>
-              <Grid item xs={3}>
+            )}
+              
+              {feed && (
+                <Grid item xs={3}>
                 <Autocomplete
                   id="disable-close-on-select"
                   size="small"
@@ -369,9 +386,12 @@ export default function FeedAddPage({ token }) {
                   )}
                 />
               </Grid>
+              )}
+              
               <Grid item xs={3}></Grid>
               <Grid item xs={3}></Grid>
-              <Grid item xs={3}>
+              {feed && (
+                <Grid item xs={3}>
                 <DatePicker
                   label="Taken Date"
                   value={takenDate}
@@ -383,7 +403,10 @@ export default function FeedAddPage({ token }) {
                   renderInput={(params) => <TextField {...params} />}
                 />
               </Grid>
-              <Grid item xs={3}>
+              )}
+              
+              {feed && (
+                <Grid item xs={3}>
                 <DatePicker
                   label="Posted Date"
                   value={postedDate}
@@ -398,17 +421,24 @@ export default function FeedAddPage({ token }) {
                   renderInput={(params) => <TextField {...params} />}
                 />
               </Grid>
+              )}
+              
               <Grid item xs={6}></Grid>
-              <Grid item xs={3}>
+
+              {feed && (
+                <Grid item xs={3}>
                 <TextField
                   label="Keyword"
                   id="keyword"
                   name="keyword"
-                  value={values.keyword}
+                  defaultValue={feed.keyword}
+                  value={feed.keyword}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
+              )}
+              
               <Grid item xs={3}>
                 <TextField
                   label="Title"
