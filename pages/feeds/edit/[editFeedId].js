@@ -38,7 +38,8 @@ export default function FeedEditPage({ token }) {
 
   const [progress, setProgress] = useState(false);
 
-  const [feed, setData] = useState(null);
+  const [feed, setFeed] = useState(null);
+  const [analysis, setAnalysis] = useState(null);
 
   const [conversationtype, setConversationtype] = useState([]);
   const [talkAbout, setTalkAbout] = useState([]);
@@ -48,6 +49,16 @@ export default function FeedEditPage({ token }) {
 
   const [takenDate, setTakenDate] = useState(null);
   const [postedDate, setPostedDate] = useState(null);
+
+  const [clientSelected, setClientSelected] = useState(null);
+  const [mediaSelected, setMediaSelected] = useState(null);
+  const [subjectSelected, setSubjectSelected] = useState(null);
+  const [talkAboutSelected, setTalkAboutSelected] = useState(null);
+  const [conversationTypeSelected, setConversationTypeSelected] = useState(null);
+  const [ageSelected, setAgeSelected] = useState(null);
+  const [genderSelected, setGenderSelected] = useState(null);
+  const [educationSelected, setEducationSelected] = useState(null);
+  const [corporateSelected, setCorporateSelected] = useState(null);
 
   const corporateList = [
     {
@@ -121,41 +132,9 @@ export default function FeedEditPage({ token }) {
     },
   ];
 
-  const [values, setValues] = useState({
-    client_id: null,
-    media_id: null,
-    taken_date: null,
-    posted_date: null,
-    keyword: "",
-    title: "",
-    caption: "",
-    content: "",
-    permalink: "",
-    thumblink: "",
-    replies: 0,
-    views: 0,
-    favs: 0,
-    likes: 0,
-    comment: 0,
-    spam: false,
-    is_active: false,
-  });
-
-  const [analysis, setAnalysis] = useState({
-    subject_id: null,
-    talk_about: "",
-    conversation_type: "",
-    tags: "",
-    corporate: "",
-    education: "",
-    gender: "",
-    age: "",
-    location: "",
-  });
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
+    setFeed({ ...feed, [name]: value });
   };
 
   const handleInputAnalysisChange = (e) => {
@@ -167,9 +146,9 @@ export default function FeedEditPage({ token }) {
     //reset subject value
     setSubject([]);
     if (value != null) {
-      values.client_id = value.value;
+      feed.client_id = value.value;
       fetchSubjects(value.value);
-    } else values.client_id = null;
+    } else feed.client_id = null;
   };
 
   const fetchConversationTypes = async () => {
@@ -216,7 +195,7 @@ export default function FeedEditPage({ token }) {
     }
   };
 
-  const fetchClients = async () => {
+  const fetchClients = async (clientId) => {
     //get conversationtype
     const res = await fetch(`${API_URL.GetAllClient}`, {
       method: "GET",
@@ -235,6 +214,8 @@ export default function FeedEditPage({ token }) {
         };
       });
       setClient(customData);
+      const bindingClientSelected = customData?.find(f => f.value == clientId);
+      setClientSelected(bindingClientSelected);
     }
   };
 
@@ -288,30 +269,36 @@ export default function FeedEditPage({ token }) {
         Authorization: `Bearer ${token}`,
       },
     });
-    setData(response.data.data);
+    const restData = response.data.data
+    setFeed(restData?.feed);
+    setAnalysis(restData?.analysis);
+    //set options selected  
+    fetchClients(restData?.feed?.client_id);  
   };
 
   useEffect(() => {
     const id = window.location.href.split("/").pop();
     fetchFeedById(id);
     fetchConversationTypes();
-    fetchTalksAbout();
-    fetchClients();
+    fetchTalksAbout();    
     fetchMedias();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setProgress(true);
-    const payLoad = { feed: values, analysis: analysis };
+    const payLoad = { feed, analysis };
 
-    const hasEmptyField = Object.values(values).some(
+    const hasEmptyField = Object.values(feed).some(
+      (element) => element === "" || element === null
+    );
+
+    const hasEmptyAnalysisFields = Object.values(analysis).some(
       (element) => element === "" || element === null
     );
 
     let callAPINeeded = true;
     if (hasEmptyField) {
-      console.log("masuk", values);
       toast.error("Please fill all fields");
       callAPINeeded = false;
     }
@@ -346,286 +333,291 @@ export default function FeedEditPage({ token }) {
         <Box m={2} p={3}>
           <form onSubmit={handleSubmit} method="post">
             <Grid container spacing={8}>
-            {feed && (
+              {feed, client, clientSelected  && (
                 <Grid item xs={3}>
-                <Autocomplete
-                  id="disable-close-on-select"
-                  size="small"
-                  options={client}
-                  onChange={handleOptionsClientChange}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Client"
-                      name="client"
-                      variant="standard"
-                    />
-                  )}
-                />
-              </Grid>
-            )}
-              
+                  <Autocomplete
+                    id="disable-close-on-select"
+                    size="small"
+                    options={client}
+                    getOptionLabel={(option) => option.label}
+                    defaultValue={clientSelected}
+                    onChange={(event, value) =>
+                      value !== null
+                        ? (feed.client_id = value["value"])
+                        : (feed.client_id = null)
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Client"
+                        name="client"
+                        variant="standard"
+                      />
+                    )}
+                  />
+                </Grid>
+              )}
+
               {feed && (
                 <Grid item xs={3}>
-                <Autocomplete
-                  id="disable-close-on-select"
-                  size="small"
-                  options={media}
-                  onChange={(event, value) =>
-                    value !== null
-                      ? (values.media_id = value["value"])
-                      : (values.media_id = null)
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Media"
-                      name="media_id"
-                      variant="standard"
-                    />
-                  )}
-                />
-              </Grid>
+                  <Autocomplete
+                    id="disable-close-on-select"
+                    size="small"
+                    options={media}
+                    onChange={(event, value) =>
+                      value !== null
+                        ? (feed.media_id = value["value"])
+                        : (feed.media_id = null)
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Media"
+                        name="media_id"
+                        variant="standard"
+                      />
+                    )}
+                  />
+                </Grid>
               )}
-              
+
               <Grid item xs={3}></Grid>
               <Grid item xs={3}></Grid>
               {feed && (
                 <Grid item xs={3}>
-                <DatePicker
-                  label="Taken Date"
-                  value={takenDate}
-                  dateFromat="YYYY-MM-dd"
-                  onChange={(newValue) => {
-                    setValues({ ...values, taken_date: getFullDate(newValue) });
-                    setTakenDate(newValue);
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </Grid>
+                  <DatePicker
+                    label="Taken Date"
+                    value={takenDate}
+                    dateFromat="YYYY-MM-dd"
+                    onChange={(newValue) => {
+                      setFeed({ ...feed, taken_date: getFullDate(newValue) });
+                      setTakenDate(newValue);
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={3}>
-                <DatePicker
-                  label="Posted Date"
-                  value={postedDate}
-                  dateFromat="YYYY-MM-dd"
-                  onChange={(newValue) => {
-                    setValues({
-                      ...values,
-                      posted_date: getFullDate(newValue),
-                    });
-                    setPostedDate(newValue);
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </Grid>
+                  <DatePicker
+                    label="Posted Date"
+                    value={postedDate}
+                    dateFromat="YYYY-MM-dd"
+                    onChange={(newValue) => {
+                      setFeed({
+                        ...feed,
+                        posted_date: getFullDate(newValue),
+                      });
+                      setPostedDate(newValue);
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </Grid>
               )}
-              
+
               <Grid item xs={6}></Grid>
 
               {feed && (
                 <Grid item xs={3}>
-                <TextField
-                  label="Keyword"
-                  id="keyword"
-                  name="keyword"
-                  defaultValue={feed.keyword}
-                  value={feed.keyword}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Keyword"
+                    id="keyword"
+                    name="keyword"
+                    defaultValue={feed.keyword}
+                    value={feed.keyword}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={3}>
-                <TextField
-                  label="Title"
-                  id="title"
-                  name="title"
-                  defaultValue={feed.title}
-                  value={feed.title}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Title"
+                    id="title"
+                    name="title"
+                    defaultValue={feed.title}
+                    value={feed.title}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               <Grid item xs={6}></Grid>
               {feed && (
                 <Grid item xs={6}>
-                <TextField
-                  label="Caption"
-                  id="caption"
-                  name="caption"
-                  fullWidth
-                  multiline
-                  maxRows={10}
-                  defaultValue={feed.caption}
-                  value={feed.caption}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Caption"
+                    id="caption"
+                    name="caption"
+                    fullWidth
+                    multiline
+                    maxRows={10}
+                    defaultValue={feed.caption}
+                    value={feed.caption}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               <Grid item xs={6}></Grid>
               {feed && (
                 <Grid item xs={3}>
-                <TextField
-                  label="Content"
-                  id="content"
-                  name="content"
-                  defaultValue={feed.content}
-                  value={feed.content}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Content"
+                    id="content"
+                    name="content"
+                    defaultValue={feed.content}
+                    value={feed.content}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={3}>
-                <TextField
-                  label="permalink"
-                  id="permalink"
-                  name="permalink"
-                  defaultValue={feed.permalink}
-                  value={feed.permalink}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="permalink"
+                    id="permalink"
+                    name="permalink"
+                    defaultValue={feed.permalink}
+                    value={feed.permalink}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={3}>
-                <TextField
-                  label="Thumblink"
-                  id="thumblink"
-                  name="thumblink"
-                  defaultValue={feed.thumblink}
-                  value={feed.thumblink}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Thumblink"
+                    id="thumblink"
+                    name="thumblink"
+                    defaultValue={feed.thumblink}
+                    value={feed.thumblink}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               <Grid item xs={3}></Grid>
               {feed && (
                 <Grid item xs={2}>
-                <TextField
-                  label="Total Replies"
-                  type="number"
-                  InputProps={{ inputProps: { min: 0 } }}
-                  id="replies"
-                  name="replies"
-                  defaultValue={feed.thumblink}
-                  value={feed.replies}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Total Replies"
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    id="replies"
+                    name="replies"
+                    defaultValue={feed.thumblink}
+                    value={feed.replies}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={2}>
-                <TextField
-                  label="Total Views"
-                  type="number"
-                  InputProps={{ inputProps: { min: 0 } }}
-                  id="views"
-                  name="views"
-                  defaultValue={feed.views}
-                  value={feed.views}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Total Views"
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    id="views"
+                    name="views"
+                    defaultValue={feed.views}
+                    value={feed.views}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={2}>
-                <TextField
-                  label="Total Favs"
-                  type="number"
-                  InputProps={{ inputProps: { min: 0 } }}
-                  id="favs"
-                  name="favs"
-                  defaultValue={feed.favs}
-                  value={feed.favs}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Total Favs"
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    id="favs"
+                    name="favs"
+                    defaultValue={feed.favs}
+                    value={feed.favs}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={2}>
-                <TextField
-                  label="Total Likes"
-                  type="number"
-                  InputProps={{ inputProps: { min: 0 } }}
-                  id="likes"
-                  name="likes"
-                  value={values.likes}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Total Likes"
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    id="likes"
+                    name="likes"
+                    value={feed.likes}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={2}>
-                <TextField
-                  label="Total Comments"
-                  type="number"
-                  InputProps={{ inputProps: { min: 0 } }}
-                  id="comment"
-                  name="comment"
-                  value={values.comment}
-                  variant="standard"
-                  onChange={handleInputChange}
-                />
-              </Grid>
+                  <TextField
+                    label="Total Comments"
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    id="comment"
+                    name="comment"
+                    value={feed.comment}
+                    variant="standard"
+                    onChange={handleInputChange}
+                  />
+                </Grid>
               )}
-              
+
               <Grid item xs={2}></Grid>
               {feed && (
                 <Grid item xs={2}>
-                <FormControlLabel
-                  id="spam"
-                  name="spam"
-                  control={
-                    <Checkbox
-                      defaultChecked={feed.spam}
-                      onChange={(e) => (feed.spam = e.target.checked)}
-                    />
-                  }
-                  label="Spam"
-                />
-              </Grid>
+                  <FormControlLabel
+                    id="spam"
+                    name="spam"
+                    control={
+                      <Checkbox
+                        defaultChecked={feed.spam}
+                        onChange={(e) => (feed.spam = e.target.checked)}
+                      />
+                    }
+                    label="Spam"
+                  />
+                </Grid>
               )}
-              
+
               {feed && (
                 <Grid item xs={4}>
-                <FormControlLabel
-                  id="is_active"
-                  name="is_active"
-                  control={
-                    <Checkbox
-                      defaultChecked={feed.is_active}
-                      onChange={(e) => (feed.is_active = e.target.checked)}
-                    />
-                  }
-                  label="Is Active"
-                />
-              </Grid>
+                  <FormControlLabel
+                    id="is_active"
+                    name="is_active"
+                    control={
+                      <Checkbox
+                        defaultChecked={feed.is_active}
+                        onChange={(e) => (feed.is_active = e.target.checked)}
+                      />
+                    }
+                    label="Is Active"
+                  />
+                </Grid>
               )}
-              
             </Grid>
             <br />
             <div>
@@ -640,178 +632,199 @@ export default function FeedEditPage({ token }) {
                 <AccordionDetails>
                   <Box m={2} p={3}>
                     <Grid container spacing={3}>
-                      <Grid item xs={3}>
-                        <Autocomplete
-                          id="disable-close-on-select"
-                          size="small"
-                          options={subject}
-                          onChange={(event, value) =>
-                            value !== null
-                              ? (analysis.subject_id = value["value"])
-                              : (analysis.subject_id = null)
-                          }
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Subject"
-                              name="subject"
-                              variant="standard"
-                            />
-                          )}
-                        />
-                      </Grid>
+                      {analysis && (
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            id="disable-close-on-select"
+                            size="small"
+                            options={subject}
+                            onChange={(event, value) =>
+                              value !== null
+                                ? (analysis.subject_id = value["value"])
+                                : (analysis.subject_id = null)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Subject"
+                                name="subject"
+                                variant="standard"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
+
                       <Grid timers xs={9}></Grid>
-                      <Grid item xs={3}>
-                        <Autocomplete
-                          id="talkabout"
-                          size="small"
-                          onChange={(event, value) =>
-                            value !== null
-                              ? (analysis.talk_about = value["value"])
-                              : (analysis.talk_about = null)
-                          }
-                          options={talkAbout}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Talk About"
-                              name="talkabout"
-                              variant="standard"
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={3}>
-                        <Autocomplete
-                          id="disable-close-on-select"
-                          size="small"
-                          options={conversationtype}
-                          onChange={(event, value) =>
-                            value !== null
-                              ? (analysis.conversation_type = value["value"])
-                              : (analysis.conversationtype = null)
-                          }
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Conversation Type"
-                              name="conversation_type"
-                              variant="standard"
-                            />
-                          )}
-                        />
-                      </Grid>
+                      {analysis && (
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            id="talkabout"
+                            size="small"
+                            onChange={(event, value) =>
+                              value !== null
+                                ? (analysis.talk_about = value["value"])
+                                : (analysis.talk_about = null)
+                            }
+                            options={talkAbout}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Talk About"
+                                name="talkabout"
+                                variant="standard"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
+
+                      {analysis && (
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            id="disable-close-on-select"
+                            size="small"
+                            options={conversationtype}
+                            onChange={(event, value) =>
+                              value !== null
+                                ? (analysis.conversation_type = value["value"])
+                                : (analysis.conversationtype = null)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Conversation Type"
+                                name="conversation_type"
+                                variant="standard"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
+
                       <Grid item xs={6}></Grid>
 
-                      <Grid item xs={3}>
-                        <Autocomplete
-                          id="disable-close-on-select"
-                          size="small"
-                          options={ageList}
-                          onChange={(event, value) =>
-                            value !== null
-                              ? (analysis.age = value["value"])
-                              : (analysis.age = null)
-                          }
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Age"
-                              name="age"
-                              variant="standard"
-                            />
-                          )}
-                        />
-                      </Grid>
+                      {analysis && (
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            id="disable-close-on-select"
+                            size="small"
+                            options={ageList}
+                            onChange={(event, value) =>
+                              value !== null
+                                ? (analysis.age = value["value"])
+                                : (analysis.age = null)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Age"
+                                name="age"
+                                variant="standard"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
 
                       {/* TODO: using Chip component */}
-                      <Grid item xs={6}>
-                        <TextField
-                          label="Tags"
-                          id="tags"
-                          name="tags"
-                          fullWidth
-                          value={values.tags}
-                          variant="standard"
-                          onChange={handleInputAnalysisChange}
-                        />
-                      </Grid>
+                      {analysis && (
+                        <Grid item xs={6}>
+                          <TextField
+                            label="Tags"
+                            id="tags"
+                            name="tags"
+                            fullWidth
+                            value={analysis.tags}
+                            variant="standard"
+                            onChange={handleInputAnalysisChange}
+                          />
+                        </Grid>
+                      )}
 
                       <Grid item xs={3}></Grid>
 
-                      <Grid item xs={3}>
-                        <Autocomplete
-                          id="disable-close-on-select"
-                          size="small"
-                          options={sexList}
-                          onChange={(event, value) =>
-                            value !== null
-                              ? (analysis.gender = value["value"])
-                              : (analysis.gender = null)
-                          }
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Gender"
-                              name="gender"
-                              variant="standard"
-                            />
-                          )}
-                        />
-                      </Grid>
+                      {analysis && (
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            id="disable-close-on-select"
+                            size="small"
+                            options={sexList}
+                            onChange={(event, value) =>
+                              value !== null
+                                ? (analysis.gender = value["value"])
+                                : (analysis.gender = null)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Gender"
+                                name="gender"
+                                variant="standard"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
 
-                      <Grid item xs={3}>
-                        <Autocomplete
-                          id="disable-close-on-select"
-                          size="small"
-                          options={educationList}
-                          onChange={(event, value) =>
-                            value !== null
-                              ? (analysis.education = value["value"])
-                              : (analysis.education = null)
-                          }
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Education"
-                              name="education"
-                              variant="standard"
-                            />
-                          )}
-                        />
-                      </Grid>
+                      {analysis && (
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            id="disable-close-on-select"
+                            size="small"
+                            options={educationList}
+                            onChange={(event, value) =>
+                              value !== null
+                                ? (analysis.education = value["value"])
+                                : (analysis.education = null)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Education"
+                                name="education"
+                                variant="standard"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
 
-                      <Grid item xs={3}>
-                        <Autocomplete
-                          id="disable-close-on-select"
-                          size="small"
-                          options={corporateList}
-                          onChange={(event, value) =>
-                            value !== null
-                              ? (analysis.corporate = value["value"])
-                              : (analysis.corporate = null)
-                          }
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Corporate"
-                              name="corporate"
-                              variant="standard"
-                            />
-                          )}
-                        />
-                      </Grid>
+                      {analysis && (
+                        <Grid item xs={3}>
+                          <Autocomplete
+                            id="disable-close-on-select"
+                            size="small"
+                            options={corporateList}
+                            onChange={(event, value) =>
+                              value !== null
+                                ? (analysis.corporate = value["value"])
+                                : (analysis.corporate = null)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Corporate"
+                                name="corporate"
+                                variant="standard"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
 
-                      <Grid item xs={3}>
-                        <TextField
-                          label="Location"
-                          id="location"
-                          name="location"
-                          value={values.location}
-                          variant="standard"
-                          onChange={handleInputAnalysisChange}
-                        />
-                      </Grid>
+                      {analysis && (
+                        <Grid item xs={3}>
+                          <TextField
+                            label="Location"
+                            id="location"
+                            name="location"
+                            value={analysis.location}
+                            variant="standard"
+                            onChange={handleInputAnalysisChange}
+                          />
+                        </Grid>
+                      )}
 
                       {/* End Grid */}
                     </Grid>
