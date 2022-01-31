@@ -439,18 +439,23 @@ export default function FeedEditPage({ token }) {
               </Grid>
               )}
               
-              <Grid item xs={3}>
+              {feed && (
+                <Grid item xs={3}>
                 <TextField
                   label="Title"
                   id="title"
                   name="title"
-                  value={values.title}
+                  defaultValue={feed.title}
+                  value={feed.title}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
+              )}
+              
               <Grid item xs={6}></Grid>
-              <Grid item xs={6}>
+              {feed && (
+                <Grid item xs={6}>
                 <TextField
                   label="Caption"
                   id="caption"
@@ -458,80 +463,108 @@ export default function FeedEditPage({ token }) {
                   fullWidth
                   multiline
                   maxRows={10}
-                  value={values.caption}
+                  defaultValue={feed.caption}
+                  value={feed.caption}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
+              )}
+              
               <Grid item xs={6}></Grid>
-              <Grid item xs={3}>
+              {feed && (
+                <Grid item xs={3}>
                 <TextField
                   label="Content"
                   id="content"
                   name="content"
-                  value={values.content}
+                  defaultValue={feed.content}
+                  value={feed.content}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={3}>
+              )}
+              
+              {feed && (
+                <Grid item xs={3}>
                 <TextField
                   label="permalink"
                   id="permalink"
                   name="permalink"
-                  value={values.permalink}
+                  defaultValue={feed.permalink}
+                  value={feed.permalink}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={3}>
+              )}
+              
+              {feed && (
+                <Grid item xs={3}>
                 <TextField
                   label="Thumblink"
                   id="thumblink"
                   name="thumblink"
-                  value={values.thumblink}
+                  defaultValue={feed.thumblink}
+                  value={feed.thumblink}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
+              )}
+              
               <Grid item xs={3}></Grid>
-              <Grid item xs={2}>
+              {feed && (
+                <Grid item xs={2}>
                 <TextField
                   label="Total Replies"
                   type="number"
                   InputProps={{ inputProps: { min: 0 } }}
                   id="replies"
                   name="replies"
-                  value={values.replies}
+                  defaultValue={feed.thumblink}
+                  value={feed.replies}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={2}>
+              )}
+              
+              {feed && (
+                <Grid item xs={2}>
                 <TextField
                   label="Total Views"
                   type="number"
                   InputProps={{ inputProps: { min: 0 } }}
                   id="views"
                   name="views"
-                  value={values.views}
+                  defaultValue={feed.views}
+                  value={feed.views}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={2}>
+              )}
+              
+              {feed && (
+                <Grid item xs={2}>
                 <TextField
                   label="Total Favs"
                   type="number"
                   InputProps={{ inputProps: { min: 0 } }}
                   id="favs"
                   name="favs"
-                  value={values.favs}
+                  defaultValue={feed.favs}
+                  value={feed.favs}
                   variant="standard"
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={2}>
+              )}
+              
+              {feed && (
+                <Grid item xs={2}>
                 <TextField
                   label="Total Likes"
                   type="number"
@@ -543,7 +576,10 @@ export default function FeedEditPage({ token }) {
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={2}>
+              )}
+              
+              {feed && (
+                <Grid item xs={2}>
                 <TextField
                   label="Total Comments"
                   type="number"
@@ -555,33 +591,41 @@ export default function FeedEditPage({ token }) {
                   onChange={handleInputChange}
                 />
               </Grid>
+              )}
+              
               <Grid item xs={2}></Grid>
-              <Grid item xs={2}>
+              {feed && (
+                <Grid item xs={2}>
                 <FormControlLabel
                   id="spam"
                   name="spam"
                   control={
                     <Checkbox
-                      defaultChecked={false}
-                      onChange={(e) => (values.spam = e.target.checked)}
+                      defaultChecked={feed.spam}
+                      onChange={(e) => (feed.spam = e.target.checked)}
                     />
                   }
                   label="Spam"
                 />
               </Grid>
-              <Grid item xs={4}>
+              )}
+              
+              {feed && (
+                <Grid item xs={4}>
                 <FormControlLabel
                   id="is_active"
                   name="is_active"
                   control={
                     <Checkbox
-                      defaultChecked={false}
-                      onChange={(e) => (values.is_active = e.target.checked)}
+                      defaultChecked={feed.is_active}
+                      onChange={(e) => (feed.is_active = e.target.checked)}
                     />
                   }
                   label="Is Active"
                 />
               </Grid>
+              )}
+              
             </Grid>
             <br />
             <div>
